@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       comment: DataTypes.TEXT,
+      photo: DataTypes.STRING(255),
       created_at: {
         type: DataTypes.DATE,
         field: 'created_at'
