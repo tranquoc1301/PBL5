@@ -1,47 +1,52 @@
 const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
-  const Itinerary = sequelize.define(
-    "Itinerary",
+  const Activity = sequelize.define(
+    "Activity",
     {
-      itinerary_id: {
+      activity_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      user_id: {
+      day_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "users",
-          key: "user_id",
+          model: "itinerary_days",
+          key: "day_id",
+        },
+      },
+      location_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "locations",
+          key: "location_id",
         },
       },
       title: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      description: {
+      start_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      end_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      notes: {
         type: DataTypes.TEXT,
       },
-      start_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
-      },
-      end_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
-      },
-      status: {
-        type: DataTypes.STRING(20),
-        allowNull: false,
-        defaultValue: "private",
+      activity_type: {
+        type: DataTypes.STRING(50),
         validate: {
-          isIn: [["public", "private", "shared"]],
+          isIn: [["visit", "transport", "meal", "rest", "other"]],
         },
       },
-      optimized: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+      activity_order: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       created_at: {
         type: DataTypes.DATE,
@@ -53,10 +58,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "itineraries",
+      tableName: "activities",
       timestamps: false,
     }
   );
 
-  return Itinerary;
+  return Activity;
 };

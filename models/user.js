@@ -1,4 +1,5 @@
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require('sequelize');
+module.exports = (sequelize) => {
   const User = sequelize.define(
     "User",
     {
@@ -17,35 +18,39 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
-      password_hash: {
+      password: {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      full_name: DataTypes.STRING(100),
-      avatar_url: DataTypes.STRING(255),
-      bio: DataTypes.TEXT,
-      location_preference: DataTypes.STRING(100),
-      travel_interests: DataTypes.JSONB,
-      social_links: DataTypes.JSONB,
-      notification_preferences: DataTypes.JSONB,
+      full_name: {
+        type: DataTypes.STRING(100),
+      },
+      avatar_url: {
+        type: DataTypes.STRING(255),
+      },
+      bio: {
+        type: DataTypes.TEXT,
+      },
+      location_preference: {
+        type: DataTypes.STRING(100),
+      },
+      social_links: {
+        type: DataTypes.JSONB,
+      },
       created_at: {
         type: DataTypes.DATE,
-        field: "created_at",
+        defaultValue: DataTypes.NOW,
       },
-      role: {
-        type: DataTypes.STRING(20),
-        defaultValue: "user",
-        validate: {
-          isIn: [["user", "admin"]],
-        },
+      updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
-      tableName: "Users",
-      timestamps: true,
-      createdAt: "created_at",
-      updatedAt: false,
+      tableName: "users",
+      timestamps: false,
     }
   );
+
   return User;
 };

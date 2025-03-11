@@ -1,4 +1,5 @@
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require('sequelize');
+module.exports = (sequelize) => {
   const Location = sequelize.define(
     "Location",
     {
@@ -11,8 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      description: DataTypes.TEXT,
-      address: DataTypes.STRING(255),
+      description: {
+        type: DataTypes.TEXT,
+      },
+      address: {
+        type: DataTypes.STRING(255),
+      },
       latitude: {
         type: DataTypes.DECIMAL(9, 6),
         allowNull: false,
@@ -23,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       average_rating: {
         type: DataTypes.DECIMAL(3, 2),
+        defaultValue: 0,
         validate: {
           min: 0,
           max: 5,
@@ -33,20 +39,22 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       tags: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
+        type: DataTypes.JSONB,
       },
       created_at: {
         type: DataTypes.DATE,
-        field: "created_at",
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
-      tableName: "Locations",
-      timestamps: true,
-      createdAt: "created_at",
-      updatedAt: false,
+      tableName: "locations",
+      timestamps: false,
     }
   );
+
   return Location;
 };

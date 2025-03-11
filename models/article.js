@@ -1,9 +1,9 @@
 const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
-  const Itinerary = sequelize.define(
-    "Itinerary",
+  const Article = sequelize.define(
+    "Article",
     {
-      itinerary_id: {
+      article_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -20,28 +20,20 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      description: {
+      content: {
         type: DataTypes.TEXT,
-      },
-      start_date: {
-        type: DataTypes.DATEONLY,
         allowNull: false,
       },
-      end_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
+      images: {
+        type: DataTypes.JSONB,
       },
       status: {
         type: DataTypes.STRING(20),
         allowNull: false,
-        defaultValue: "private",
+        defaultValue: "published",
         validate: {
-          isIn: [["public", "private", "shared"]],
+          isIn: [["draft", "published", "archived"]],
         },
-      },
-      optimized: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
       },
       created_at: {
         type: DataTypes.DATE,
@@ -53,10 +45,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "itineraries",
+      tableName: "articles",
       timestamps: false,
     }
   );
 
-  return Itinerary;
+  return Article;
 };
