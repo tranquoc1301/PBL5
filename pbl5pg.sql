@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS locations (
     address VARCHAR(255),
     latitude DECIMAL(9, 6) NOT NULL,
     longitude DECIMAL(9, 6) NOT NULL,
+    open_time DATETIME,
+    close_time DATETIME, 
     average_rating DECIMAL(3, 2) DEFAULT 0 CHECK (average_rating BETWEEN 0 AND 5),
     image_url VARCHAR(255) NOT NULL,
     tags JSONB,
@@ -153,10 +155,6 @@ CREATE TABLE IF NOT EXISTS post_likes (
     UNIQUE(user_id, post_id) -- Mỗi user chỉ like 1 post 1 lần
 );
 
--- Bây giờ thêm ràng buộc tham chiếu cho bảng users
-ALTER TABLE users
-ADD CONSTRAINT fk_users_last_post
-FOREIGN KEY (last_post_id) REFERENCES posts(post_id) ON DELETE SET NULL;
 
 -- FUNCTION CẬP NHẬT THỜI GIAN
 CREATE OR REPLACE FUNCTION update_modified_column() RETURNS TRIGGER AS $$
