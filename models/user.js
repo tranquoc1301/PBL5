@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   const User = sequelize.define(
     "User",
@@ -7,6 +7,12 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+      },
+      google_id: {
+        // Thêm Google ID vào model
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
       },
       username: {
         type: DataTypes.STRING(50),
@@ -20,7 +26,15 @@ module.exports = (sequelize) => {
       },
       password: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
+      },
+      reset_password_token: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
+      reset_password_expires: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
       full_name: {
         type: DataTypes.STRING(100),
@@ -36,6 +50,10 @@ module.exports = (sequelize) => {
       },
       social_links: {
         type: DataTypes.JSONB,
+      },
+      role: {
+        type: DataTypes.STRING(20),
+        defaultValue: "user",
       },
       created_at: {
         type: DataTypes.DATE,
