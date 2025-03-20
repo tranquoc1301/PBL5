@@ -20,17 +20,18 @@ class AuthService {
     return this.generateTokenResponse(user);
   }
 
-  static async register(username, email, password) {
+  static async register(username, email, password, role) {
     if (!username || !email || !password) {
       throw new Error("Username, email, and password are required");
     }
-
+    role = role === "admin" ? "admin" : "user";
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
       const user = await User.create({
         username,
         email,
         password: hashedPassword,
+        role,
       });
       return { message: "User registered successfully", userId: user.user_id };
     } catch (error) {

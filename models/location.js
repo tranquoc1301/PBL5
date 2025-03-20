@@ -1,4 +1,5 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
+
 module.exports = (sequelize) => {
   const Location = sequelize.define(
     "Location",
@@ -26,6 +27,12 @@ module.exports = (sequelize) => {
         type: DataTypes.DECIMAL(9, 6),
         allowNull: false,
       },
+      open_time: {
+        type: DataTypes.TIME,
+      },
+      close_time: {
+        type: DataTypes.TIME,
+      },
       average_rating: {
         type: DataTypes.DECIMAL(3, 2),
         defaultValue: 0,
@@ -40,6 +47,9 @@ module.exports = (sequelize) => {
       },
       tags: {
         type: DataTypes.JSONB,
+      },
+      category: {
+        type: DataTypes.STRING(50),
       },
       created_at: {
         type: DataTypes.DATE,
@@ -56,5 +66,15 @@ module.exports = (sequelize) => {
     }
   );
 
+  Location.associate = function (models) {
+    // Quan hệ 1-n: Một Location có nhiều Post
+    Location.hasMany(models.Post, { foreignKey: "location_id" });
+    // Quan hệ n-n: Location liên kết với Article qua bảng ArticleLocation
+    Location.belongsToMany(models.Article, {
+      through: models.ArticleLocation,
+      foreignKey: "location_id",
+    });
+  };
+  
   return Location;
 };

@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const Favorite = sequelize.define('Favorite', {
-    favorite_id: {
+  const PostLike = sequelize.define('PostLike', {
+    like_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    location_id: {
+    post_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -20,14 +20,14 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW,
     },
   }, {
-    tableName: 'favorites',
+    tableName: 'post_likes',
     timestamps: false,
     uniqueKeys: {
-      user_location_unique: {
-        fields: ['user_id', 'location_id'],
+      user_post_unique: {
+        fields: ['user_id', 'post_id'],
       },
     },
   });
 
-  return Favorite;
+  return PostLike;
 };

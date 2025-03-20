@@ -20,14 +20,14 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
     if (!username || !email || !password) {
       return res
         .status(400)
         .json({ error: "Username, email, and password are required." });
     }
 
-    const result = await AuthService.register(username, email, password);
+    const result = await AuthService.register(username, email, password, role);
     return res.status(201).json(result);
   } catch (error) {
     if (error.message === "Email already exists") {

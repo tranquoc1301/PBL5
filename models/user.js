@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+
 module.exports = (sequelize) => {
   const User = sequelize.define(
     "User",
@@ -9,30 +10,28 @@ module.exports = (sequelize) => {
         autoIncrement: true,
       },
       google_id: {
-        // Thêm Google ID vào model
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: DataTypes.STRING(50),
         unique: true,
       },
       username: {
         type: DataTypes.STRING(50),
-        allowNull: false,
         unique: true,
+        allowNull: false,
       },
       email: {
         type: DataTypes.STRING(100),
-        allowNull: false,
         unique: true,
+        allowNull: false,
       },
       password: {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
-      reset_password_token: {
+      password_reset_token: {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
-      reset_password_expires: {
+      password_reset_expires: {
         type: DataTypes.DATE,
         allowNull: true,
       },
@@ -52,8 +51,15 @@ module.exports = (sequelize) => {
         type: DataTypes.JSONB,
       },
       role: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING(50),
+        allowNull: false,
         defaultValue: "user",
+        validate: {
+          isIn: [["user", "admin"]],
+        },
+      },
+      preferences: {
+        type: DataTypes.JSONB,
       },
       created_at: {
         type: DataTypes.DATE,
@@ -69,6 +75,18 @@ module.exports = (sequelize) => {
       timestamps: false,
     }
   );
+
+  User.associate = function (models) {
+    // Quan hệ 1-n: Một User có nhiều Itinerary
+    User.hasMany(models.Itinerary, { foreignKey: "user_id" });
+    // Quan hệ 1-n: Một User có nhiều Post
+    User.hasMany(models.Post, { foreignKey: "user_id" });
+    // Quan hệ n-n: User liên kết với Itinerary qua bảng ItineraryShare
+    User.belongsToMany(models.Itinerary, {
+      through: models.ItineraryShare,
+      foreignKey: "user_id",
+    });
+  };
 
   return User;
 };

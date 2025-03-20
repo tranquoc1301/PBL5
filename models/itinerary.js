@@ -1,4 +1,5 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
+
 module.exports = (sequelize) => {
   const Itinerary = sequelize.define(
     "Itinerary",
@@ -11,10 +12,6 @@ module.exports = (sequelize) => {
       user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "users",
-          key: "user_id",
-        },
       },
       title: {
         type: DataTypes.STRING(100),
@@ -24,11 +21,11 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
       },
       start_date: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       end_date: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       status: {
@@ -57,6 +54,17 @@ module.exports = (sequelize) => {
       timestamps: false,
     }
   );
-
+  
+  Itinerary.associate = function (models) {
+    // Quan hệ n-1: Một Itinerary thuộc về một User
+    Itinerary.belongsTo(models.User, { foreignKey: "user_id" });
+    // Quan hệ 1-n: Một Itinerary có nhiều ItineraryDay
+    Itinerary.hasMany(models.ItineraryDay, { foreignKey: "itinerary_id" });
+    // Quan hệ n-n: Itinerary liên kết với User qua bảng ItineraryShare
+    Itinerary.belongsToMany(models.User, {
+      through: models.ItineraryShare,
+      foreignKey: "itinerary_id",
+    });
+  };
   return Itinerary;
 };

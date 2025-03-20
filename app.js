@@ -20,5 +20,22 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Serve static files (CSS, JS, etc.)
+app.use(express.static(path.join(__dirname, "public")));
+
+// Set up views
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "register.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "login.html"));
+});
+
+app.get("/google-login", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "google-login.html"));
+});
 
 module.exports = app;
