@@ -275,7 +275,9 @@ VALUES
     ('Hải đăng Tiên Sa', 'Ngọn hải đăng cổ với tầm nhìn tuyệt đẹp ra biển Đông.', 1, 1, 3, 'Sơn Trà, Đà Nẵng', '06:00', '17:00', 4.4, 'https://static.vinwonders.com/2022/12/hai-dang-tien-sa-0.jpg', '{"tags": ["hải đăng", "check-in", "biển"]}', 'Di tích', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('Bảo tàng Chăm', 'Bảo tàng lưu giữ nhiều hiện vật quý về văn hóa Chăm Pa.', 1, 1, 3, 'Trưng Nữ Vương, Đà Nẵng', '07:30', '17:00', 4.2, 'https://yootek.vn/wp-content/uploads/2025/02/Bao-tang1-1.jpg', '{"tags": ["bảo tàng", "Chăm Pa", "di tích"]}', 'Bảo tàng', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('Chợ Cồn', 'Chợ nổi tiếng với nhiều món ăn vặt hấp dẫn của Đà Nẵng.', 1, 1, 3, 'Hải Châu, Đà Nẵng', '06:00', '18:00', 4.5, 'https://dacsanlamqua.com/wp-content/uploads/2017/01/Anh-cho-con.jpg', '{"tags": ["ẩm thực", "chợ", "ăn vặt"]}', 'Chợ', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
 Select * from locations
+
 INSERT INTO reviews (user_id, location_id, rating, comment, photos, created_at, updated_at) VALUES
 (1, 2, 5, 'Cầu Rồng rất đẹp vào ban đêm, đặc biệt là khi rồng phun lửa.', '["https://furamavietnam.com/wp-content/uploads/2024/11/Furama-Resort-Danang-Sightseeing-Dragon-Brigde-2-1024x576.jpg"]', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 (2, 3, 4, 'Bà Nà Hills có khung cảnh đẹp nhưng giá vé hơi cao.', '["https://furamavietnam.com/wp-content/uploads/2024/11/Furama-Resort-Danang-Sightseeing-Dragon-Brigde-2-1024x576.jpg"]', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
