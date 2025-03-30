@@ -4,15 +4,17 @@ const userRoutes = require("./user");
 const activityRoutes = require("./activity");
 const locationRoutes = require("./location");
 const commentRoutes = require("./comment");
-
-
+const reviewRoutes = require("./review");
+const articleRoutes = require("./article");
 const router = express.Router();
 
 router.use("/auth", authRoutes);
 
 router.use("/users", userRoutes);
-
+router.use("/review", reviewRoutes);
 router.use("/activity", activityRoutes);
 router.use("/location", locationRoutes);
 router.use("/comment", commentRoutes);
+router.use("/article", articleRoutes);
+
 module.exports = router;
