@@ -74,7 +74,7 @@ class UserController {
       const userId = req.params.id;
 
       await UserService.deleteUser(userId);
-      res.status(204).send();
+      res.status(204).json({ message: "User deleted successfully" });
     } catch (error) {
       res
         .status(500)
@@ -106,7 +106,8 @@ class UserController {
           .json({ message: "Query parameter 'q' is required" });
       }
 
-      const users = await UserService.searchUsers(query);``
+      const users = await UserService.searchUsers(query);
+      ``;
       res.status(200).json(users);
     } catch (error) {
       res

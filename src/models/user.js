@@ -58,9 +58,6 @@ module.exports = (sequelize) => {
           isIn: [["user", "admin"]],
         },
       },
-      preferences: {
-        type: DataTypes.JSONB,
-      },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

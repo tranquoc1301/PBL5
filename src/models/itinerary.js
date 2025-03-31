@@ -9,17 +9,11 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
       title: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      description: {
-        type: DataTypes.TEXT,
-      },
+      description: DataTypes.TEXT,
       start_date: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -30,7 +24,6 @@ module.exports = (sequelize) => {
       },
       status: {
         type: DataTypes.STRING(20),
-        allowNull: false,
         defaultValue: "private",
         validate: {
           isIn: [["public", "private", "shared"]],
@@ -54,17 +47,15 @@ module.exports = (sequelize) => {
       timestamps: false,
     }
   );
-  
+
   Itinerary.associate = function (models) {
-    // Quan hệ n-1: Một Itinerary thuộc về một User
     Itinerary.belongsTo(models.User, { foreignKey: "user_id" });
-    // Quan hệ 1-n: Một Itinerary có nhiều ItineraryDay
     Itinerary.hasMany(models.ItineraryDay, { foreignKey: "itinerary_id" });
-    // Quan hệ n-n: Itinerary liên kết với User qua bảng ItineraryShare
     Itinerary.belongsToMany(models.User, {
       through: models.ItineraryShare,
       foreignKey: "itinerary_id",
     });
   };
+
   return Itinerary;
 };

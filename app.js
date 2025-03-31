@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const routes = require("./routes");
+const routes = require("./src/routes"); // Đường dẫn đến file routes/index.js
 const path = require("path"); // Khai báo module path
 const session = require("express-session");
-const passport = require("./config/passport");
+const passport = require("./src/config/passport"); // Đường dẫn đến file passport.js
 const app = express();
 require("dotenv").config();
 
