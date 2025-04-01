@@ -322,6 +322,7 @@ INSERT INTO articles (user_id, title, content, images, status, created_at, updat
  '["https://media.thanhtra.com.vn/public/data/images/0/2024/06/09/thaihai/tiem-nang-du-lich-viet-nam-hien-nay.jpg?w=1319"]'::jsonb, 'published', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
+
 INSERT INTO comments (article_id, user_id, content, created_at, updated_at) VALUES
 (1, 2, 'Mình vừa đi Đà Nẵng tuần trước, đúng là thành phố đáng sống!', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, 3, 'Huế có rất nhiều địa điểm đẹp và yên bình, thích nhất là đi thuyền trên sông Hương.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

@@ -20,7 +20,7 @@ exports.searchLocationByName = async (req, res) => {
   try {
     const { name } = req.query; // Lấy tên từ query parameter
 
-    if (!name) {
+    if (!name) {  
       return res.status(400).json({ error: "Tên địa điểm là bắt buộc" });
     }
 
