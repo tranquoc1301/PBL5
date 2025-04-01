@@ -278,3 +278,4 @@ CREATE INDEX idx_posts_created ON posts(created_at);
 CREATE INDEX idx_posts_caption ON posts(caption);
 CREATE INDEX idx_post_likes_post ON post_likes(post_id);
 CREATE INDEX idx_post_likes_user ON post_likes(user_id);
+
