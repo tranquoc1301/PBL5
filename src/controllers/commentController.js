@@ -6,6 +6,7 @@ const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5'
 const CommentModel = require('../models/comment');
 const Comment = CommentModel(sequelize);
 
+
 exports.getAllComments = async (req, res) => {
   try {
     const comments = await Comment.findAll();
