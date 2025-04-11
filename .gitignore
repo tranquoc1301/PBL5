@@ -3,3 +3,5 @@ node_modules/
 src/views/
 serviceAccountKey.json
 
+src/config/config.json
+
