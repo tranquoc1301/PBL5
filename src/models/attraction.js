@@ -44,6 +44,10 @@ module.exports = (sequelize) => {
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
+      },
+      special: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     },
     {

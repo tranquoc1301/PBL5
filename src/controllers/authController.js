@@ -50,18 +50,54 @@ exports.googleAuthCallback = (req, res, next) => {
     const { token, user } = data;
 
     if (!user.google_id) {
-      user.google_id = user.google_id || profile.id;
+      user.google_id = data.profile?.id || user.google_id;
       await user.save();
     }
 
-    return res.redirect(`/auth/success?token=${token}`);
+    // Chuẩn bị dữ liệu người dùng
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar_url || null,
+    };
+
+    // Chuyển hướng đến trang trung gian với query params
+    const frontendUrl = "http://localhost:3000/auth-callback";
+    const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
+
+    return res.redirect(
+      `${frontendUrl}?token=${token}&googleUser=${userDataEncoded}`
+    );
   })(req, res, next);
 };
-
 exports.authSuccess = (req, res) => {
-  const { token } = req.query;
-  return res.json({ message: "Login successful", token });
+  const { token, user } = req.query;
+
+  if (!token || !user) {
+    return res.status(400).json({ error: "Missing token or user data" });
+  }
+
+  try {
+    const userData = JSON.parse(decodeURIComponent(user));
+    // Return JSON instead of redirecting
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        role: userData.role,
+        avatar: userData.avatar || null,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json({ error: "Invalid user data" });
+  }
 };
+
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
