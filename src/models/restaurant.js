@@ -52,6 +52,10 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      rating_total: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      }
     },
     {
       tableName: "restaurants",

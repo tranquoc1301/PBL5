@@ -35,9 +35,10 @@ exports.getSpecialRestaurantByCity = async (req, res) => {
 
     const specialRestaurant = await Restaurant.findAll({
       where: {
-        special: true,
         city_id: city_id,
       },
+      order: [['rating_total', 'DESC']],
+      limit: 4,
     });
 
     res.json(specialRestaurant);
