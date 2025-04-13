@@ -1,92 +1,64 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
-const { Op } = require('sequelize');
-const CityModel = require('../models/cities');
-const City = CityModel(sequelize);
+const CityService = require("../services/cityService");
 
-
-exports.getAllCities = async (req, res) => {
+class CityController {
+  static async getAllCities(req, res) {
     try {
-      const cities = await City.findAll();
-      res.json(cities);
+      const cities = await CityService.getAllCities();
+      res.status(200).json(cities);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res
+        .status(500)
+        .json({ message: "Internal Server error", error: error.message });
     }
-  };
-  
-  exports.getCityById = async (req, res) => {
+  }
+
+  static async getCityById(req, res) {
     try {
       const { id } = req.params;
-      const city = await City.findByPk(id);
-      if (city) {
-        res.json(city);
-      } else {
-        res.status(404).json({ message: "City not found" });
+      const city = await CityService.getCityById(id);
+      if (!city) {
+        return res.status(404).json({ message: "City not found" });
       }
+      res.status(200).json(city);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res
+        .status(500)
+        .json({ message: "Internal Server error", error: error.message });
     }
-  };
-  
-  exports.getCityByName = async (req, res) => {
-    try {
-      const { name } = req.params; 
-      
-      const cities = await City.findAll({
-        where: {
-          [Op.like]: `%${name}%`
-        },
-      });
-  
-      if (cities.length > 0) {
-        res.json(cities);
-      } else {
-        res.status(404).json({ message: "City not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
-  
+  }
 
-  exports.createCity = async (req, res) => {
+  static async createCity(req, res) {
     try {
-      const newCity = await City.create(req.body);
+      const cityData = req.body;
+      const newCity = await CityService.createCity(cityData);
       res.status(201).json(newCity);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
-  };
-  
-  exports.updateCity = async (req, res) => {
+  }
+
+  static async updateCity(req, res) {
     try {
       const { id } = req.params;
-      const city = await City.findByPk(id);
-      if (city) {
-        await city.update(req.body);
-        res.json(city);
-      } else {
-        res.status(404).json({ message: "City not found" });
-      }
+      const cityData = req.body;
+      const updatedCity = await CityService.updateCity(id, cityData);
+      res.status(200).json(updatedCity);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
-  };
-  
-  exports.deleteCity = async (req, res) => {
+  }
+
+  static async deleteCity(req, res) {
     try {
       const { id } = req.params;
-      const city = await City.findByPk(id);
-      if (city) {
-        await city.destroy();
-        res.json({ message: "City deleted successfully" });
-      } else {
-        res.status(404).json({ message: "City not found" });
-      }
+      await CityService.deleteCity(id);
+      res.status(200).json({ message: "City deleted successfully" });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res
+        .status(500)
+        .json({ message: "Internal Server error", error: error.message });
     }
-  };
+  }
+}
+
+module.exports = CityController;

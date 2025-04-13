@@ -2,4 +2,6 @@ node_modules/
 .env
 src/views/
 serviceAccountKey.json
+
 src/config/config.json
+
