@@ -54,9 +54,12 @@ class AuthService {
       user: {
         username: user.username,
         role: user.role,
+        email: user.email,
+        avatar: user.avatar_url,
       },
     };
   }
+
   static async forgotPassword(email) {
     const user = await User.findOne({ where: { email } });
     if (!user) throw new Error("Email không tồn tại");
