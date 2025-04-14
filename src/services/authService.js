@@ -20,14 +20,12 @@ class AuthService {
     return this.generateTokenResponse(user);
   }
 
-  static async register(username, email, password, role) {
-    if (!username || !email || !password) {
-      throw new Error("Username, email, and password are required");
-    }
+  static async register(fullName, username, email, password, role) {
     role = role === "admin" ? "admin" : "user";
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
       const user = await User.create({
+        full_name: fullName,
         username,
         email,
         password: hashedPassword,
@@ -68,26 +66,101 @@ class AuthService {
     const token = crypto.randomBytes(32).toString("hex");
     const expires = new Date(Date.now() + 3600000); // Hết hạn sau 1 giờ
 
-    user.reset_password_token = token;
-    user.reset_password_expires = expires;
+    user.password_reset_token = token;
+    user.password_reset_expires = expires;
     await user.save();
 
-    // Gửi email chứa link reset
-    const resetLink = `http://localhost:8080/auth/reset-password/${token}`;
+    // Link reset mật khẩu
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`; // Trỏ đến frontend
+
+    // Template email HTML
+    const emailTemplate = `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Đặt lại mật khẩu</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+        <table role="presentation" style="width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 20px; text-align: center; background-color: #007bff; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+              <h2 style="font-size: 24px; color: #ffffff; margin: 0;">Yêu cầu đặt lại mật khẩu</h2>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 30px;">
+              <h1 style="font-size: 22px; color: #333333; margin: 0 0 20px;">Đặt lại mật khẩu của bạn</h1>
+              <p style="font-size: 16px; color: #555555; line-height: 1.5; margin: 0 0 20px;">
+                Xin chào ${user.full_name || "Người dùng"},<br />
+                Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng nhấp vào nút bên dưới để đặt lại mật khẩu. Link này sẽ hết hạn sau 1 giờ.
+              </p>
+              <!-- Button -->
+              <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-align: center;">Đặt lại mật khẩu</a>
+              <p style="font-size: 14px; color: #777777; line-height: 1.5; margin: 20px 0 0;">
+                Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này hoặc liên hệ với chúng tôi tại 
+                <a href="mailto:support@yourdomain.com" style="color: #007bff; text-decoration: none;">tripguidedut@gmail.com</a>.
+              </p>
+              <p style="font-size: 14px; color: #777777; line-height: 1.5; margin: 10px 0 0;">
+                Trân trọng,<br />
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px; text-align: center; background-color: #f8f9fa; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+              <p style="font-size: 14px; color: #777777; margin: 0;">
+                © ${new Date().getFullYear()} TripGuide. All rights reserved.<br />
+              </p>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    // Gửi email
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
-      subject: "Đặt lại mật khẩu",
-      html: `<p>Bạn đã yêu cầu đặt lại mật khẩu. Nhấp vào <a href="${resetLink}">đây</a> để tiếp tục.</p>`,
+      subject: "Yêu cầu đặt lại mật khẩu",
+      html: emailTemplate,
     });
 
     return { message: "Email đặt lại mật khẩu đã được gửi." };
   }
+
+  // static async forgotPassword(email) {
+  //   const user = await User.findOne({ where: { email } });
+  //   if (!user) throw new Error("Email không tồn tại");
+
+  //   // Tạo token reset
+  //   const token = crypto.randomBytes(32).toString("hex");
+  //   const expires = new Date(Date.now() + 3600000); // Hết hạn sau 1 giờ
+
+  //   user.password_reset_token = token;
+  //   user.password_reset_expires = expires;
+  //   await user.save();
+
+  //   // Sửa link reset để trỏ đến frontend thay vì backend
+  //   const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+  //   await transporter.sendMail({
+  //     from: process.env.EMAIL_USER,
+  //     to: user.email,
+  //     subject: "Đặt lại mật khẩu",
+  //     html: `<p>Bạn đã yêu cầu đặt lại mật khẩu. Nhấp vào <a href="${resetLink}">đây</a> để tiếp tục.</p>`,
+  //   });
+
+  //   return { message: "Email đặt lại mật khẩu đã được gửi." };
+  // }
   static async resetPassword(token, newPassword) {
     const user = await User.findOne({
       where: {
-        reset_password_token: token,
-        reset_password_expires: { [Op.gt]: new Date() }, // Kiểm tra token có hết hạn chưa
+        password_reset_token: token,
+        password_reset_expires: { [Op.gt]: new Date() }, // Kiểm tra token có hết hạn chưa
       },
     });
 
@@ -95,8 +168,8 @@ class AuthService {
 
     // Mã hoá mật khẩu mới và lưu vào DB
     user.password = await bcrypt.hash(newPassword, 10);
-    user.reset_password_token = null;
-    user.reset_password_expires = null;
+    user.password_reset_token = null;
+    user.password_reset_expires = null;
     await user.save();
 
     return { message: "Mật khẩu đã được đặt lại thành công." };
