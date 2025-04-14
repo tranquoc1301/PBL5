@@ -20,14 +20,15 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username, email, and password are required." });
-    }
+    const { fullName, username, email, password, role } = req.body;
 
-    const result = await AuthService.register(username, email, password, role);
+    const result = await AuthService.register(
+      fullName,
+      username,
+      email,
+      password,
+      role
+    );
     return res.status(201).json(result);
   } catch (error) {
     if (error.message === "Email already exists") {
@@ -111,8 +112,15 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
-    const response = await AuthService.resetPassword(token, newPassword);
+    const { password } = req.body;
+
+    if (!token || !password) {
+      return res
+        .status(400)
+        .json({ error: "Token và mật khẩu mới là bắt buộc." });
+    }
+
+    const response = await AuthService.resetPassword(token, password);
     return res.status(200).json(response);
   } catch (error) {
     return res.status(400).json({ error: error.message });
