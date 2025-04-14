@@ -10,9 +10,10 @@ router.get("/google", authController.googleAuth);
 router.get("/google/callback", authController.googleAuthCallback);
 // Trả về token sau khi login thành công
 router.get("/success", authController.authSuccess);
+
 // Gửi email reset password
 router.post("/forgot-password", authController.forgotPassword);
- // Reset mật khẩu
+// Reset mật khẩu
 router.post("/reset-password/:token", authController.resetPassword);
 
 module.exports = router;

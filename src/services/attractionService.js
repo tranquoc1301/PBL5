@@ -24,14 +24,16 @@ class AttractionService {
     const attraction = await Attraction.findByPk(attractionId);
     if (!attraction) throw new Error("Địa điểm không tồn tại");
     return await attraction.destroy();
+    
   }
   
   static async getSpecialAttractionsByCity(cityId) {
     const attractions = await Attraction.findAll({
       where: {
-        special: true,
         city_id: cityId,
       },
+      order: [['rating_total', 'DESC']],
+      limit: 4,
     });
   
     if (!attractions || attractions.length === 0) {

@@ -20,14 +20,15 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username, email, and password are required." });
-    }
+    const { fullName, username, email, password, role } = req.body;
 
-    const result = await AuthService.register(username, email, password, role);
+    const result = await AuthService.register(
+      fullName,
+      username,
+      email,
+      password,
+      role
+    );
     return res.status(201).json(result);
   } catch (error) {
     if (error.message === "Email already exists") {
@@ -50,18 +51,54 @@ exports.googleAuthCallback = (req, res, next) => {
     const { token, user } = data;
 
     if (!user.google_id) {
-      user.google_id = user.google_id || profile.id;
+      user.google_id = data.profile?.id || user.google_id;
       await user.save();
     }
 
-    return res.redirect(`/auth/success?token=${token}`);
+    // Chuẩn bị dữ liệu người dùng
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar_url || null,
+    };
+
+    // Chuyển hướng đến trang trung gian với query params
+    const frontendUrl = "http://localhost:3000/auth-callback";
+    const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
+
+    return res.redirect(
+      `${frontendUrl}?token=${token}&googleUser=${userDataEncoded}`
+    );
   })(req, res, next);
 };
-
 exports.authSuccess = (req, res) => {
-  const { token } = req.query;
-  return res.json({ message: "Login successful", token });
+  const { token, user } = req.query;
+
+  if (!token || !user) {
+    return res.status(400).json({ error: "Missing token or user data" });
+  }
+
+  try {
+    const userData = JSON.parse(decodeURIComponent(user));
+    // Return JSON instead of redirecting
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        role: userData.role,
+        avatar: userData.avatar || null,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json({ error: "Invalid user data" });
+  }
 };
+
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -75,8 +112,15 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
-    const response = await AuthService.resetPassword(token, newPassword);
+    const { password } = req.body;
+
+    if (!token || !password) {
+      return res
+        .status(400)
+        .json({ error: "Token và mật khẩu mới là bắt buộc." });
+    }
+
+    const response = await AuthService.resetPassword(token, password);
     return res.status(200).json(response);
   } catch (error) {
     return res.status(400).json({ error: error.message });
