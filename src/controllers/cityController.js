@@ -27,6 +27,21 @@ class CityController {
     }
   }
 
+  static async getCityByName(req, res) {
+    try {
+      const { name } = req.params;
+      const city = await CityService.getCityByName(name);
+      if (!city) {
+        return res.status(404).json({ message: "City not found" });
+      }
+      res.status(200).json(city);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Internal Server error", error: error.message });
+    }
+  }
+
   static async createCity(req, res) {
     try {
       const cityData = req.body;

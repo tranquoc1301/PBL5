@@ -8,6 +8,8 @@ router.get(
   "/special/:city_id",
   restaurantController.getSpecialRestaurantByCity
 );
+router.get("/topnearby/:restaurantId", restaurantController.getNearbyTopRestaurant);
+router.get("/rank/:restaurantId", restaurantController.getRestaurantRank);
 router.post("/", restaurantController.createRestaurant);
 router.put("/:id", restaurantController.updateRestaurant);
 router.delete("/:id", restaurantController.deleteRestaurant);

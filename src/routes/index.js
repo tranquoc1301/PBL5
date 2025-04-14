@@ -22,5 +22,6 @@ router.use("/article", articleRoutes);
 router.use("/ggmap", ggmapRoutes);
 router.use("/restaurants", restaurantRoutes);
 router.use("/cities", cityRoutes);
+
 // router.use("/restaurant", restaurantRoutes);
 module.exports = router;

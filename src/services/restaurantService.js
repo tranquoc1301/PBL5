@@ -1,6 +1,6 @@
 const { Restaurant } = require("../models");
 const { Op } = require("sequelize");
-
+const { Sequelize } = require('sequelize');
 class RestaurantService {
   static async getAllRestaurants() {
     return await Restaurant.findAll();
@@ -13,9 +13,11 @@ class RestaurantService {
   static async getSpecialRestaurantByCity(cityId) {
     return await Restaurant.findAll({
       where: {
-        special: true,
         city_id: cityId,
       },
+
+      order: [['rating_total', 'DESC']],
+      limit: 4,
     });
   }
 
@@ -31,6 +33,72 @@ class RestaurantService {
     await restaurant.update(restaurantData);
     return restaurant;
   }
+
+  static async getRestaurantRank(restaurantId) {
+    console.log(restaurantId);
+    const result = await Restaurant.sequelize.query(
+      `
+        WITH ranked_restaurants AS (
+          SELECT
+            restaurant_id,
+            rating_total,
+            RANK() OVER (PARTITION BY city_id ORDER BY rating_total DESC) AS ranking
+          FROM restaurants
+        )
+        SELECT ranking
+        FROM ranked_restaurants
+        WHERE restaurant_id = :restaurantId
+        LIMIT 1;
+        `,
+      {
+        replacements: { restaurantId },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!result || result.length === 0) {
+      return null;
+    }
+
+    return result[0].ranking;
+  }
+
+  static async getNearbyTopRestaurant(restaurantId) {
+    const result = await Restaurant.sequelize.query(
+      `
+        WITH origin AS (
+          SELECT latitude, longitude, city_id
+          FROM restaurants
+          WHERE restaurant_id = :restaurantId
+        ),
+        nearby AS (
+          SELECT a.*,
+            (
+              6371 * acos(
+                cos(radians(o.latitude)) *
+                cos(radians(a.latitude)) *
+                cos(radians(a.longitude) - radians(o.longitude)) +
+                sin(radians(o.latitude)) *
+                sin(radians(a.latitude))
+              )
+            ) AS distance
+          FROM restaurants a, origin o
+          WHERE a.city_id = o.city_id AND a.restaurant_id != :restaurantId
+        )
+        SELECT *
+        FROM nearby
+        WHERE distance <= 1
+        ORDER BY rating_total DESC
+        LIMIT 4;
+        `,
+      {
+        replacements: { restaurantId },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+    return result;
+  }
+
 
   static async deleteRestaurant(id) {
     const restaurant = await Restaurant.findByPk(id);

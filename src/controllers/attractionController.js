@@ -1,3 +1,4 @@
+const { messaging } = require("firebase-admin");
 const AttractionService = require("../services/attractionService");
 
 // Lấy tất cả địa điểm tham quan
@@ -24,6 +25,32 @@ exports.getAttractionById = async (req, res, next) => {
   }
 };
 
+exports.getAttractionRank = async(req, res, next) => {
+  try {
+    const attractionId = parseInt(req.params.attractionId);
+    const rank = await AttractionService.getAttractionRank(attractionId);
+
+    if(!rank) {
+      return res.status(404).json({message: 'Attraction not found!'});
+    }
+    res.status(200).json({ attraction_id: attractionId, rank });
+  }catch (error) {
+    next(error);
+  }
+}
+
+exports.getNearbyTopAttractions = async(req, res, next) => {
+  try {
+    const attractionId = parseInt(req.params.attractionId);
+    const nearby = await AttractionService.getNearbyTopAttractions(attractionId);
+    if(!nearby) {
+      return res.status(404).json({message: 'Attraction not found!'});
+    }
+    res.status(200).json({ nearby });
+  }catch (error) {
+    next(error);
+  }
+}
 
 exports.getSpecialAttractionsByCity = async (req, res, next) => {
   try {

@@ -1,5 +1,6 @@
 const { Attraction } = require("../models");
 const { Op } = require("sequelize");
+const { Sequelize } = require('sequelize');
 
 class AttractionService {
   static async getAllAttractions() {
@@ -43,6 +44,74 @@ class AttractionService {
     return attractions;
   }
   
+  static async getAttractionRank(attractionId) {
+    console.log(attractionId);
+    const result = await Attraction.sequelize.query(
+      `
+      WITH ranked_attractions AS (
+        SELECT
+          attraction_id,
+          rating_total,
+          RANK() OVER (PARTITION BY city_id ORDER BY rating_total DESC) AS ranking
+        FROM attractions
+      )
+      SELECT ranking
+      FROM ranked_attractions
+      WHERE attraction_id = :attractionId
+      LIMIT 1;
+      `,
+      {
+        replacements: { attractionId },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!result || result.length === 0) {
+      return null;
+    }
+
+    return result[0].ranking;
+  }
+
+
+  static async getNearbyTopAttractions(attractionId) {
+    const result = await Attraction.sequelize.query(
+      `
+      WITH origin AS (
+        SELECT latitude, longitude, city_id
+        FROM attractions
+        WHERE attraction_id = :attractionId
+      ),
+      nearby AS (
+        SELECT a.*,
+          (
+            6371 * acos(
+              cos(radians(o.latitude)) *
+              cos(radians(a.latitude)) *
+              cos(radians(a.longitude) - radians(o.longitude)) +
+              sin(radians(o.latitude)) *
+              sin(radians(a.latitude))
+            )
+          ) AS distance
+        FROM attractions a, origin o
+        WHERE a.city_id = o.city_id AND a.attraction_id != :attractionId
+      )
+      SELECT *
+      FROM nearby
+      WHERE distance <= 1
+      ORDER BY rating_total DESC
+      LIMIT 4;
+      `,
+      {
+        replacements: { attractionId },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+  
+    return result;
+  }
+  
+
   static async searchAttractions(query) {
     return await Attraction.findAll({
       where: {

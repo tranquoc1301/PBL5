@@ -33,6 +33,35 @@ class RestaurantController {
     }
   }
 
+  static async getRestaurantRank(req, res, next) {
+    try {
+      const { restaurantId } = req.params;
+      const rank = await RestaurantService.getRestaurantRank(restaurantId);
+      console.log(restaurantId);
+      if (!rank) {
+        return res.status(404).json({ message: 'Restaurant not found!' });
+      }
+      res.status(200).json({ restaurantId: restaurantId, rank });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+  static async getNearbyTopRestaurant(req, res, next) {
+    try {
+      const { restaurantId } = req.params;
+      const nearbyTopRestaurant = await RestaurantService.getNearbyTopRestaurant(restaurantId);
+      if (!nearbyTopRestaurant) {
+        return res.status(404).json({ message: 'Restaurant not found!' });
+      }
+      res.status(200).json({ nearbyTopRestaurant });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
   static async createRestaurant(req, res) {
     try {
       const restaurantData = req.body;
