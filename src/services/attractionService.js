@@ -1,6 +1,6 @@
 const { Attraction } = require("../models");
 const { Op } = require("sequelize");
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 class AttractionService {
   static async getAllAttractions() {
@@ -25,25 +25,24 @@ class AttractionService {
     const attraction = await Attraction.findByPk(attractionId);
     if (!attraction) throw new Error("Địa điểm không tồn tại");
     return await attraction.destroy();
-    
   }
-  
+
   static async getSpecialAttractionsByCity(cityId) {
     const attractions = await Attraction.findAll({
       where: {
         city_id: cityId,
       },
-      order: [['rating_total', 'DESC']],
+      order: [["rating_total", "DESC"]],
       limit: 4,
     });
-  
+
     if (!attractions || attractions.length === 0) {
       throw new Error("Không tìm thấy địa điểm nổi bật nào cho thành phố này");
     }
-  
+
     return attractions;
   }
-  
+
   static async getAttractionRank(attractionId) {
     const result = await Attraction.sequelize.query(
       `
@@ -71,7 +70,6 @@ class AttractionService {
 
     return result[0].ranking;
   }
-
 
   static async getNearbyTopAttractions(attractionId) {
     const result = await Attraction.sequelize.query(
@@ -106,10 +104,9 @@ class AttractionService {
         type: Sequelize.QueryTypes.SELECT,
       }
     );
-  
+
     return result;
   }
-  
 
   static async searchAttractions(query) {
     return await Attraction.findAll({

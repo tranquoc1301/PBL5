@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { User } = require("../models");
 const transporter = require("../config/mail");
 const { Op } = require("sequelize");
+const { join } = require("path");
 
 class AuthService {
   static async login(email, password) {

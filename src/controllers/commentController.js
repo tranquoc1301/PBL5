@@ -1,11 +1,13 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
-const CommentModel = require('../models/comment');
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/pbl5`,
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
+const CommentModel = require("../models/comment");
 const Comment = CommentModel(sequelize);
-
 
 exports.getAllComments = async (req, res) => {
   try {
@@ -23,7 +25,7 @@ exports.getCommentById = async (req, res) => {
     if (comment) {
       res.json(comment);
     } else {
-      res.status(404).json({ message: 'Comment not found' });
+      res.status(404).json({ message: "Comment not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -49,7 +51,7 @@ exports.updateComment = async (req, res) => {
       const updatedComment = await Comment.findByPk(id);
       res.json(updatedComment);
     } else {
-      res.status(404).json({ message: 'Comment not found' });
+      res.status(404).json({ message: "Comment not found" });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -65,7 +67,7 @@ exports.deleteComment = async (req, res) => {
     if (deleted) {
       res.status(204).send();
     } else {
-      res.status(404).json({ message: 'Comment not found' });
+      res.status(404).json({ message: "Comment not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });

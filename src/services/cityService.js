@@ -15,9 +15,13 @@ class CityService {
   }
 
   static async getCityByName(name) {
-    const city = await City.findOne({ where: { name: {
-      [Op.like]: `%${name}%`
-    } } });
+    const city = await City.findOne({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    });
     return city; // Trả về null nếu không tìm thấy, controller sẽ xử lý
   }
 

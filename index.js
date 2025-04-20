@@ -2,7 +2,7 @@ const app = require("./app");
 const sequelize = require("./src/models").sequelize;
 require("dotenv").config();
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8081;
 
 sequelize.sync().then(() => {
   app.listen(PORT, () => {

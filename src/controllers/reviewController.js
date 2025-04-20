@@ -1,9 +1,12 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
-const ReviewModel = require('../models/review');
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/pbl5`,
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
+const ReviewModel = require("../models/review");
 const Review = ReviewModel(sequelize);
 const { Op } = require("sequelize");
 exports.getAllReviews = async (req, res) => {
@@ -88,7 +91,6 @@ exports.getReviewsByRestaurantId = async (req, res) => {
   }
 };
 
-
 exports.createReview = async (req, res) => {
   try {
     const newReview = await Review.create(req.body);
@@ -109,7 +111,7 @@ exports.updateReview = async (req, res) => {
       const updatedReview = await Review.findByPk(id);
       res.json(updatedReview);
     } else {
-      res.status(404).json({ message: 'Review not found' });
+      res.status(404).json({ message: "Review not found" });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -125,7 +127,7 @@ exports.deleteReview = async (req, res) => {
     if (deleted) {
       res.status(204).send();
     } else {
-      res.status(404).json({ message: 'Review not found' });
+      res.status(404).json({ message: "Review not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });

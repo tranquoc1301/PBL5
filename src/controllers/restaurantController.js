@@ -37,7 +37,7 @@ class RestaurantController {
     try {
       const { restaurantId } = req.params;
       const rank = await RestaurantService.getRestaurantRank(restaurantId);
-      console.log(restaurantId);
+      // console.log(restaurantId);
       if (!rank) {
         return res.status(404).json({ message: 'Restaurant not found!' });
       }

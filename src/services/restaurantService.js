@@ -1,6 +1,6 @@
 const { Restaurant } = require("../models");
 const { Op } = require("sequelize");
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 class RestaurantService {
   static async getAllRestaurants() {
     return await Restaurant.findAll();
@@ -16,7 +16,7 @@ class RestaurantService {
         city_id: cityId,
       },
 
-      order: [['rating_total', 'DESC']],
+      order: [["rating_total", "DESC"]],
       limit: 4,
     });
   }
@@ -97,7 +97,6 @@ class RestaurantService {
     );
     return result;
   }
-
 
   static async deleteRestaurant(id) {
     const restaurant = await Restaurant.findByPk(id);
