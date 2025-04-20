@@ -24,26 +24,75 @@ function generateGrid(centerLat, centerLng, stepLat, stepLng, numSteps) {
   return gridPoints;
 }
 
+function generateTagsFromTypes(place, cityName) {
+  const tags = [];
+
+  const typeMap = {
+    restaurant: "Nhà hàng",
+    cafe: "Quán cà phê",
+    bar: "Quán bar",
+    museum: "Bảo tàng",
+    art_gallery: "Phòng tranh",
+    park: "Công viên",
+    church: "Nhà thờ",
+    hindu_temple: "Đền thờ",
+    buddhist_temple: "Chùa",
+    zoo: "Sở thú",
+    lodging: "Khách sạn",
+    shopping_mall: "Trung tâm thương mại",
+    movie_theater: "Rạp chiếu phim",
+    amusement_park: "Công viên giải trí",
+    tourist_attraction: "Điểm du lịch",
+    bakery: "Tiệm bánh",
+    food: "Ẩm thực",
+    supermarket: "Siêu thị",
+  };
+
+  // Duyệt qua tất cả type của địa điểm
+  if (Array.isArray(place.types)) {
+    place.types.forEach((type) => {
+      if (typeMap[type] && !tags.includes(typeMap[type])) {
+        tags.push(typeMap[type]);
+      }
+    });
+  }
+
+  // Thêm tên thành phố
+  tags.push(cityName);
+
+  return tags;
+}
 
 exports.getRestaurant_infor = async (req, res) => {
   console.time("Thời gian chạy hàm");
   try {
     const cities = [
       // { city_id: 1, name: "Hà Nội", lat: 21.0285, lng: 105.8542},
-      {
-        city_id: 2,
-        name: "TP. Hồ Chí Minh",
-        lat: 10.7769,
-        lng: 106.7009
-      },
+      // {
+      //   city_id: 2,
+      //   name: "TP. Hồ Chí Minh",
+      //   lat: 10.7769,
+      //   lng: 106.7009
+      // },
       // { city_id: 3, name: "Đà Nẵng", lat: 16.0544, lng: 108.2022 },
-      { city_id: 4, name: "Hải Phòng", lat: 20.844911, lng: 106.688084 },
-      { city_id: 5, name: "Cần Thơ", lat: 10.045162, lng: 105.746857 },
-      { city_id: 6, name: "Huế", lat: 16.463713, lng: 107.590866 },
-      { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
-      { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
-      { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
-      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+      // { city_id: 4, name: "Hải Phòng", lat: 20.844911, lng: 106.688084 },
+      // { city_id: 5, name: "Cần Thơ", lat: 10.045162, lng: 105.746857 },
+      // { city_id: 6, name: "Huế", lat: 16.463713, lng: 107.590866 },
+      // { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
+      // { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
+      // { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
+      // { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+
+      { city_id: 11, name: "Biên Hòa", lat: 10.944690, lng: 106.824997 },
+      { city_id: 12, name: "Buôn Ma Thuột", lat: 12.666097, lng: 108.038247 },
+      { city_id: 13, name: "Thái Nguyên", lat: 21.594222, lng: 105.848194 },
+      { city_id: 14, name: "Long Xuyên", lat: 10.386393, lng: 105.435211 },
+      { city_id: 15, name: "Rạch Giá", lat: 10.012378, lng: 105.080933 },
+      // { city_id: 16, name: "Việt Trì", lat: 21.322739, lng: 105.402381 },
+      // { city_id: 17, name: "Nam Định", lat: 20.438821, lng: 106.162105 },
+      // { city_id: 18, name: "Thanh Hóa", lat: 19.807942, lng: 105.776329 },
+      // { city_id: 19, name: "Quảng Ngãi", lat: 15.120152, lng: 108.792236 },
+      // { city_id: 20, name: "Pleiku", lat: 13.983073, lng: 108.001678 }
     ];
 
     const radius = 2000; // 3km
@@ -178,10 +227,12 @@ exports.getAttraction_infor = async (req, res) => {
       // { city_id: 4, name: "Hải Phòng", lat: 20.844911, lng: 106.688084 },
       // { city_id: 5, name: "Cần Thơ", lat: 10.045162, lng: 105.746857 },
       // { city_id: 6, name: "Huế", lat: 16.463713, lng: 107.590866 },
-      { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
-      { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
-      { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
-      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+      // { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
+      // { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
+      // { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
+      // { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+      // { city_id: 11, name: "Biên Hòa", lat: 10.944690, lng: 106.824997 },
+      { city_id: 12, name: "Buôn Ma Thuột", lat: 12.666097, lng: 108.038247 },
     ];
 
     const radius = 2000; // 3km
@@ -249,7 +300,7 @@ exports.getAttraction_infor = async (req, res) => {
               `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
           )
           : [],
-        tags: ["địa điểm du lịch", city.name],
+        tags: Array.isArray(place.types) ? [...place.types, city.name] : [city.name],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));

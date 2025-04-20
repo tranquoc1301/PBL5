@@ -45,7 +45,6 @@ class AttractionService {
   }
   
   static async getAttractionRank(attractionId) {
-    console.log(attractionId);
     const result = await Attraction.sequelize.query(
       `
       WITH ranked_attractions AS (
@@ -98,7 +97,7 @@ class AttractionService {
       )
       SELECT *
       FROM nearby
-      WHERE distance <= 1
+      WHERE distance <= 4
       ORDER BY rating_total DESC
       LIMIT 4;
       `,
