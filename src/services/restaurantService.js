@@ -35,7 +35,6 @@ class RestaurantService {
   }
 
   static async getRestaurantRank(restaurantId) {
-    // console.log(restaurantId);
     const result = await Restaurant.sequelize.query(
       `
         WITH ranked_restaurants AS (

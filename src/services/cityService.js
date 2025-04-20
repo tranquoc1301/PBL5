@@ -14,6 +14,17 @@ class CityService {
     return await City.create(cityData);
   }
 
+  static async getCityByName(name) {
+    const city = await City.findOne({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    });
+    return city; // Trả về null nếu không tìm thấy, controller sẽ xử lý
+  }
+
   static async updateCity(id, cityData) {
     const city = await City.findByPk(id);
     if (!city) {
