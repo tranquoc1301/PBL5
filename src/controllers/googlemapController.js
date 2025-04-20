@@ -1,12 +1,15 @@
 const axios = require("axios");
 const { Op } = require("sequelize");
-const { Sequelize } = require('sequelize');
-const RestaurantModel = require('../models/restaurant');
-const AttractionModel = require('../models/attraction');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
+const { Sequelize } = require("sequelize");
+const RestaurantModel = require("../models/restaurant");
+const AttractionModel = require("../models/attraction");
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/pbl5`,
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
 
 const Restaurant = RestaurantModel(sequelize);
 const Attraction = AttractionModel(sequelize);
@@ -24,7 +27,6 @@ function generateGrid(centerLat, centerLng, stepLat, stepLng, numSteps) {
   return gridPoints;
 }
 
-
 exports.getRestaurant_infor = async (req, res) => {
   console.time("Thời gian chạy hàm");
   try {
@@ -34,7 +36,7 @@ exports.getRestaurant_infor = async (req, res) => {
         city_id: 2,
         name: "TP. Hồ Chí Minh",
         lat: 10.7769,
-        lng: 106.7009
+        lng: 106.7009,
       },
       // { city_id: 3, name: "Đà Nẵng", lat: 16.0544, lng: 108.2022 },
       { city_id: 4, name: "Hải Phòng", lat: 20.844911, lng: 106.688084 },
@@ -43,7 +45,7 @@ exports.getRestaurant_infor = async (req, res) => {
       { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
       { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
       { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
-      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.984 },
     ];
 
     const radius = 2000; // 3km
@@ -56,7 +58,13 @@ exports.getRestaurant_infor = async (req, res) => {
     let totalSkipped = 0;
 
     for (const city of cities) {
-      const gridPoints = generateGrid(city.lat, city.lng, stepLat, stepLng, numSteps);
+      const gridPoints = generateGrid(
+        city.lat,
+        city.lng,
+        stepLat,
+        stepLng,
+        numSteps
+      );
       let allPlaces = [];
 
       for (const point of gridPoints) {
@@ -76,7 +84,10 @@ exports.getRestaurant_infor = async (req, res) => {
             await new Promise((resolve) => setTimeout(resolve, 2000));
           }
 
-          const response = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", { params });
+          const response = await axios.get(
+            "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+            { params }
+          );
 
           const places = response.data.results || [];
           allPlaces = allPlaces.concat(places);
@@ -110,9 +121,9 @@ exports.getRestaurant_infor = async (req, res) => {
         average_rating: place.rating || 0,
         image_url: Array.isArray(place.photos)
           ? place.photos.map(
-            (photo) =>
-              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
-          )
+              (photo) =>
+                `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
+            )
           : [],
         tags: ["Nhà hàng", city.name],
         reservation_required: false,
@@ -120,7 +131,7 @@ exports.getRestaurant_infor = async (req, res) => {
         updated_at: new Date().toISOString(),
       }));
 
-      console.log(`Thành phố ${city.name} có ${restaurants.length} nhà hàng.`);
+      // console.log(`Thành phố ${city.name} có ${restaurants.length} nhà hàng.`);
 
       const existingAttractions = await Restaurant.findAll({
         where: {
@@ -131,7 +142,9 @@ exports.getRestaurant_infor = async (req, res) => {
       });
 
       const existingNames = existingAttractions.map((a) => a.name);
-      const newAttractions = restaurants.filter((a) => !existingNames.includes(a.name));
+      const newAttractions = restaurants.filter(
+        (a) => !existingNames.includes(a.name)
+      );
 
       if (newAttractions.length > 0) {
         await Restaurant.bulkCreate(newAttractions);
@@ -150,18 +163,16 @@ exports.getRestaurant_infor = async (req, res) => {
       citiesProcessed: cities.length,
     });
   } catch (error) {
-    console.error("Lỗi khi lấy dữ liệu từ Google Maps API:", error.message || error);
+    console.error(
+      "Lỗi khi lấy dữ liệu từ Google Maps API:",
+      error.message || error
+    );
     if (!res.headersSent) {
       res.status(500).json({ error: "Lỗi khi lấy dữ liệu từ Google Maps API" });
     }
   }
   console.timeEnd("Thời gian chạy hàm");
 };
-
-
-
-
-
 
 exports.getAttraction_infor = async (req, res) => {
   console.time("Thời gian chạy hàm");
@@ -181,7 +192,7 @@ exports.getAttraction_infor = async (req, res) => {
       { city_id: 7, name: "Nha Trang", lat: 12.238791, lng: 109.196749 },
       { city_id: 8, name: "Đà Lạt", lat: 11.940419, lng: 108.458313 },
       { city_id: 9, name: "Vũng Tàu", lat: 10.346, lng: 107.0843 },
-      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.9840 }
+      { city_id: 10, name: "Phú Quốc", lat: 10.2899, lng: 103.984 },
     ];
 
     const radius = 2000; // 3km
@@ -194,7 +205,13 @@ exports.getAttraction_infor = async (req, res) => {
     let totalSkipped = 0;
 
     for (const city of cities) {
-      const gridPoints = generateGrid(city.lat, city.lng, stepLat, stepLng, numSteps);
+      const gridPoints = generateGrid(
+        city.lat,
+        city.lng,
+        stepLat,
+        stepLng,
+        numSteps
+      );
       let allPlaces = [];
 
       for (const point of gridPoints) {
@@ -214,7 +231,10 @@ exports.getAttraction_infor = async (req, res) => {
             await new Promise((resolve) => setTimeout(resolve, 2000));
           }
 
-          const response = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", { params });
+          const response = await axios.get(
+            "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+            { params }
+          );
 
           const places = response.data.results || [];
           allPlaces = allPlaces.concat(places);
@@ -245,16 +265,16 @@ exports.getAttraction_infor = async (req, res) => {
         rating_total: place.user_ratings_total || 0,
         image_url: Array.isArray(place.photos)
           ? place.photos.map(
-            (photo) =>
-              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
-          )
+              (photo) =>
+                `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
+            )
           : [],
         tags: ["địa điểm du lịch", city.name],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));
 
-      console.log(`Thành phố ${city.name} có ${attractions.length} địa điểm.`);
+      // console.log(`Thành phố ${city.name} có ${attractions.length} địa điểm.`);
 
       const existingAttractions = await Attraction.findAll({
         where: {
@@ -265,7 +285,9 @@ exports.getAttraction_infor = async (req, res) => {
       });
 
       const existingNames = existingAttractions.map((a) => a.name);
-      const newAttractions = attractions.filter((a) => !existingNames.includes(a.name));
+      const newAttractions = attractions.filter(
+        (a) => !existingNames.includes(a.name)
+      );
 
       if (newAttractions.length > 0) {
         await Attraction.bulkCreate(newAttractions);
@@ -284,7 +306,10 @@ exports.getAttraction_infor = async (req, res) => {
       citiesProcessed: cities.length,
     });
   } catch (error) {
-    console.error("Lỗi khi lấy dữ liệu từ Google Maps API:", error.message || error);
+    console.error(
+      "Lỗi khi lấy dữ liệu từ Google Maps API:",
+      error.message || error
+    );
     if (!res.headersSent) {
       res.status(500).json({ error: "Lỗi khi lấy dữ liệu từ Google Maps API" });
     }
@@ -292,93 +317,87 @@ exports.getAttraction_infor = async (req, res) => {
   console.timeEnd("Thời gian chạy hàm");
 };
 
-
-
 // const existingData = new Set(existingRestaurants.map((r) => `${r.name}-${r.latitude}-${r.longitude}`));
 
 // const newRestaurants = restaurants.filter(
 //   (r) => !existingData.has(`${r.name}-${r.latitude}-${r.longitude}`)
 // );
 
-
-
-
 // try {
-  //   const centerLat = 16.047079; // Tọa độ Huế
-  //   const centerLng = 108.206230;
-  //   const radius = 2000; // mét
-  //   const stepLat = 0.02; // ~1km
-  //   const stepLng = 0.02;
-  //   const numSteps = 2; // Lưới 5x5 = 25 điểm
+//   const centerLat = 16.047079; // Tọa độ Huế
+//   const centerLng = 108.206230;
+//   const radius = 2000; // mét
+//   const stepLat = 0.02; // ~1km
+//   const stepLng = 0.02;
+//   const numSteps = 2; // Lưới 5x5 = 25 điểm
 
-  //   const gridPoints = generateGrid(centerLat, centerLng, stepLat, stepLng, numSteps);
-  //   let allPlaces = [];
+//   const gridPoints = generateGrid(centerLat, centerLng, stepLat, stepLng, numSteps);
+//   let allPlaces = [];
 
-  //   for (const point of gridPoints) {
-  //     let nextPageToken = null;
-  //     let attempts = 0;
+//   for (const point of gridPoints) {
+//     let nextPageToken = null;
+//     let attempts = 0;
 
-  //     do {
-  //       const params = {
-  //         location: `${point.lat},${point.lng}`,
-  //         radius,
-  //         type: "restaurant",
-  //         key: GOOGLE_MAPS_API_KEY,
-  //       };
+//     do {
+//       const params = {
+//         location: `${point.lat},${point.lng}`,
+//         radius,
+//         type: "restaurant",
+//         key: GOOGLE_MAPS_API_KEY,
+//       };
 
-  //       if (nextPageToken) {
-  //         params.pagetoken = nextPageToken;
-  //         await new Promise((resolve) => setTimeout(resolve, 2000));
-  //       }
+//       if (nextPageToken) {
+//         params.pagetoken = nextPageToken;
+//         await new Promise((resolve) => setTimeout(resolve, 2000));
+//       }
 
-  //       const response = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", { params });
+//       const response = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", { params });
 
-  //       const places = response.data.results || [];
-  //       allPlaces = allPlaces.concat(places);
-  //       nextPageToken = response.data.next_page_token;
-  //       attempts++;
-  //     } while (nextPageToken && attempts < 3);
-  //   }
-  //   const uniquePlacesMap = new Map();
-  //   for (const place of allPlaces) {
-  //     const key = `${place.name}-${place.geometry.location.lat}-${place.geometry.location.lng}`;
-  //     if (!uniquePlacesMap.has(key)) {
-  //       uniquePlacesMap.set(key, place);
-  //     }
-  //   }
-  //   const uniquePlaces = Array.from(uniquePlacesMap.values());
-    
+//       const places = response.data.results || [];
+//       allPlaces = allPlaces.concat(places);
+//       nextPageToken = response.data.next_page_token;
+//       attempts++;
+//     } while (nextPageToken && attempts < 3);
+//   }
+//   const uniquePlacesMap = new Map();
+//   for (const place of allPlaces) {
+//     const key = `${place.name}-${place.geometry.location.lat}-${place.geometry.location.lng}`;
+//     if (!uniquePlacesMap.has(key)) {
+//       uniquePlacesMap.set(key, place);
+//     }
+//   }
+//   const uniquePlaces = Array.from(uniquePlacesMap.values());
 
-  //   console.log("Tổng số nhà hàng thu được:", restaurants.length);
+//   console.log("Tổng số nhà hàng thu được:", restaurants.length);
 
-  //   // Kiểm tra trùng lặp trong DB
-  //   const existingRestaurants = await Restaurant.findAll({
-  //     where: {
-  //       name: {
-  //         [Op.in]: restaurants.map((r) => r.name),
-  //       },
-  //     },
-  //   });
+//   // Kiểm tra trùng lặp trong DB
+//   const existingRestaurants = await Restaurant.findAll({
+//     where: {
+//       name: {
+//         [Op.in]: restaurants.map((r) => r.name),
+//       },
+//     },
+//   });
 
-  //   const existingNames = existingRestaurants.map((r) => r.name);
-  //   const newRestaurants = restaurants.filter((r) => !existingNames.includes(r.name));
+//   const existingNames = existingRestaurants.map((r) => r.name);
+//   const newRestaurants = restaurants.filter((r) => !existingNames.includes(r.name));
 
-  //   console.log("Số lượng nhà hàng mới:", newRestaurants.length);
+//   console.log("Số lượng nhà hàng mới:", newRestaurants.length);
 
-  //   if (newRestaurants.length > 0) {
-  //     await Restaurant.bulkCreate(newRestaurants);
-  //   }
+//   if (newRestaurants.length > 0) {
+//     await Restaurant.bulkCreate(newRestaurants);
+//   }
 
-  //   res.json({
-  //     message: "Đã lưu các nhà hàng vào database!",
-  //     saved: newRestaurants.length,
-  //     skipped: existingNames.length,
-  //     totalFetched: restaurants.length,
-  //     totalNewSaved: newRestaurants.length,
-  //   });
-  // } catch (error) {
-  //   console.error("Lỗi khi lấy dữ liệu từ Google Maps API:", error.message || error);
-  //   if (!res.headersSent) {
-  //     res.status(500).json({ error: "Lỗi khi lấy dữ liệu từ Google Maps API" });
-  //   }
-  // }
+//   res.json({
+//     message: "Đã lưu các nhà hàng vào database!",
+//     saved: newRestaurants.length,
+//     skipped: existingNames.length,
+//     totalFetched: restaurants.length,
+//     totalNewSaved: newRestaurants.length,
+//   });
+// } catch (error) {
+//   console.error("Lỗi khi lấy dữ liệu từ Google Maps API:", error.message || error);
+//   if (!res.headersSent) {
+//     res.status(500).json({ error: "Lỗi khi lấy dữ liệu từ Google Maps API" });
+//   }
+// }

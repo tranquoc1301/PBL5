@@ -1,9 +1,12 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
-const ArticleModel = require('../models/article');
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/pbl5`,
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
+const ArticleModel = require("../models/article");
 const Article = ArticleModel(sequelize);
 
 // Lấy tất cả bài viết
@@ -38,7 +41,9 @@ exports.createArticle = async (req, res) => {
     const { user_id, title, content, images, status } = req.body;
 
     if (!user_id || !title || !content) {
-      return res.status(400).json({ error: "user_id, title và content là bắt buộc" });
+      return res
+        .status(400)
+        .json({ error: "user_id, title và content là bắt buộc" });
     }
 
     const newArticle = await Article.create({

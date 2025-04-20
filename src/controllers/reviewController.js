@@ -1,9 +1,12 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:123456@localhost:5432/PBL5', {
-  dialect: 'postgres',
-  logging: false,
-});
-const ReviewModel = require('../models/review');
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize(
+  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/pbl5`,
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
+const ReviewModel = require("../models/review");
 const Review = ReviewModel(sequelize);
 const { Op } = require("sequelize");
 exports.getAllReviews = async (req, res) => {
@@ -54,14 +57,17 @@ exports.getReviewsById = async (req, res) => {
     const { location_id } = req.params;
 
     // Kiểm tra id có hợp lệ không
-    if (!location_id|| isNaN(location_id)) {
+    if (!location_id || isNaN(location_id)) {
       return res.status(400).json({ error: "Invalid id" });
     }
 
     // Tìm review dựa trên attraction_id hoặc restaurant_id
     const reviews = await Review.findAll({
       where: {
-        [Op.or]: [{ attraction_id: location_id }, { restaurant_id: location_id }],
+        [Op.or]: [
+          { attraction_id: location_id },
+          { restaurant_id: location_id },
+        ],
       },
     });
 
@@ -70,7 +76,6 @@ exports.getReviewsById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 exports.createReview = async (req, res) => {
   try {
@@ -91,7 +96,7 @@ exports.updateReview = async (req, res) => {
       const updatedReview = await Review.findByPk(id);
       res.json(updatedReview);
     } else {
-      res.status(404).json({ message: 'Review not found' });
+      res.status(404).json({ message: "Review not found" });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -107,7 +112,7 @@ exports.deleteReview = async (req, res) => {
     if (deleted) {
       res.status(204).send();
     } else {
-      res.status(404).json({ message: 'Review not found' });
+      res.status(404).json({ message: "Review not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });

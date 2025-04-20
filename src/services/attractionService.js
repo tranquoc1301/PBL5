@@ -45,7 +45,7 @@ class AttractionService {
   }
   
   static async getAttractionRank(attractionId) {
-    console.log(attractionId);
+    // console.log(attractionId);
     const result = await Attraction.sequelize.query(
       `
       WITH ranked_attractions AS (

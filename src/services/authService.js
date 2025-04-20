@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { User } = require("../models");
 const transporter = require("../config/mail");
 const { Op } = require("sequelize");
+const { join } = require("path");
 
 class AuthService {
   static async login(email, password) {
@@ -50,10 +51,13 @@ class AuthService {
     return {
       token,
       user: {
+        id: user.user_id,
         username: user.username,
+        fullName: user.full_name,
         role: user.role,
         email: user.email,
         avatar: user.avatar_url,
+        joinedAt: user.created_at,
       },
     };
   }
