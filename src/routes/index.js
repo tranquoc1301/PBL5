@@ -14,7 +14,7 @@ const router = express.Router();
 router.use("/auth", authRoutes);
 
 router.use("/users", userRoutes);
-router.use("/review", reviewRoutes);
+router.use("/reviews", reviewRoutes);
 // router.use("/activity", activityRoutes);
 router.use("/attractions", attractionRoutes);
 router.use("/comment", commentRoutes);

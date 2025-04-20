@@ -32,6 +32,7 @@ exports.register = async (req, res) => {
     return res.status(201).json(result);
   } catch (error) {
     if (error.message === "Email already exists") {
+      console.error("Validation Error:", error.errors);
       return res.status(409).json({ error: error.message });
     }
     return res.status(500).json({ error: error.message });

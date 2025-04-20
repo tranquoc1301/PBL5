@@ -49,19 +49,36 @@ exports.getAllReviews = async (req, res) => {
 //   }
 // };
 
-exports.getReviewsById = async (req, res) => {
+exports.getReviewsByAttractionId = async (req, res) => {
   try {
-    const { location_id } = req.params;
+    const { attraction_id } = req.params;
 
-    // Kiểm tra id có hợp lệ không
-    if (!location_id|| isNaN(location_id)) {
+    if (!attraction_id|| isNaN(attraction_id)) {
+      return res.status(400).json({ error: "Invalid id" });
+    }
+    const reviews = await Review.findAll({
+      where: {
+        attraction_id : attraction_id
+      },
+    });
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getReviewsByRestaurantId = async (req, res) => {
+  try {
+    const { restaurant_id } = req.params;
+
+    if (!restaurant_id|| isNaN(restaurant_id)) {
       return res.status(400).json({ error: "Invalid id" });
     }
 
-    // Tìm review dựa trên attraction_id hoặc restaurant_id
     const reviews = await Review.findAll({
       where: {
-        [Op.or]: [{ attraction_id: location_id }, { restaurant_id: location_id }],
+        restaurant_id : restaurant_id
       },
     });
 
@@ -78,6 +95,7 @@ exports.createReview = async (req, res) => {
     res.status(201).json(newReview);
   } catch (error) {
     res.status(400).json({ error: error.message });
+    console.error("Validation Error:", error.errors);
   }
 };
 
