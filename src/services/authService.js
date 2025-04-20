@@ -51,7 +51,7 @@ class AuthService {
     return {
       token,
       user: {
-        id: user.user_id,
+        user_id: user.user_id,
         username: user.username,
         fullName: user.full_name,
         role: user.role,

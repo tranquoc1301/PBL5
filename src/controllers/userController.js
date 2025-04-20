@@ -23,7 +23,7 @@ class UserController {
   // Lấy thông tin người dùng bằng email
   static async getUserByEmail(req, res) {
     try {
-      const email = req.query.email;
+      const email = req.params.email;
       const user = await UserService.getUserByEmail(email);
 
       if (!user) {

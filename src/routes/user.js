@@ -16,7 +16,7 @@ router.get("/search", userController.searchUsers);
 router.get("/:id", userController.getUserById);
 
 // Get user by email
-router.get("/", userController.getUserByEmail);
+router.get("/email/:email", userController.getUserByEmail);
 
 // Create new user
 router.post("/", userController.createUser);
