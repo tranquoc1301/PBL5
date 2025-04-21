@@ -41,12 +41,6 @@ module.exports = (sequelize) => {
       avatar_url: {
         type: DataTypes.STRING(255),
       },
-      bio: {
-        type: DataTypes.TEXT,
-      },
-      location_preference: {
-        type: DataTypes.STRING(100),
-      },
       social_links: {
         type: DataTypes.JSONB,
       },
@@ -65,6 +59,15 @@ module.exports = (sequelize) => {
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+      },
+      bio: {
+        type: DataTypes.JSONB,
+        defaultValue: {
+          currentCity: "",
+          about: "",
+          website: "",
+          location_preferences: [],
+        },
       },
     },
     {

@@ -1,26 +1,21 @@
-// controllers/UserController.js
 const UserService = require("../services/userService");
 
 class UserController {
-  // Lấy thông tin người dùng bằng ID
   static async getUserById(req, res) {
     try {
       const userId = req.params.id;
       const user = await UserService.getUserById(userId);
-
       if (!user) {
-        return res.status(404).json({ message: "User not found !" });
+        return res.status(404).json({ message: "User not found!" });
       }
-
       res.status(200).json(user);
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Internal Server error:", error: error.message });
+        .json({ message: "Internal Server error", error: error.message });
     }
   }
 
-  // Lấy thông tin người dùng bằng email
   static async getUserByEmail(req, res) {
     try {
       const email = req.params.email;
@@ -29,20 +24,22 @@ class UserController {
       if (!user) {
         return res.status(404).json({ message: "User not found !" });
       }
-
       res.status(200).json(user);
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Internal Server error:", error: error.message });
+        .json({ message: "Internal Server error", error: error.message });
     }
   }
 
-  // Tạo người dùng mới
   static async createUser(req, res) {
     try {
       const { username, email, password, role } = req.body;
-
+      if (!username || !email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Username, email, and password are required" });
+      }
       const newUser = await UserService.createUser(
         username,
         email,
@@ -55,12 +52,17 @@ class UserController {
     }
   }
 
-  // Cập nhật thông tin người dùng
   static async updateUser(req, res) {
     try {
       const userId = req.params.id;
-      const userData = req.body;
-
+      const userData = {
+        full_name: req.body.full_name,
+        username: req.body.username,
+        bio: req.body.bio ? JSON.parse(req.body.bio) : {},
+      };
+      if (req.file) {
+        userData.avatar_url = `/uploads/${req.file.filename}`; // Use avatar_url
+      }
       const updatedUser = await UserService.updateUser(userId, userData);
       res.status(200).json(updatedUser);
     } catch (error) {
@@ -68,51 +70,61 @@ class UserController {
     }
   }
 
-  // Xóa người dùng
   static async deleteUser(req, res) {
     try {
       const userId = req.params.id;
-
       await UserService.deleteUser(userId);
       res.status(204).json({ message: "User deleted successfully" });
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Internal Server error:", error: error.message });
+        .json({ message: "Internal Server error", error: error.message });
     }
   }
 
-  // Lấy tất cả người dùng (limit: số lượng bản ghi, offset: vị trí bắt đầu)
   static async getAllUsers(req, res) {
     try {
       const { limit = 10, offset = 0 } = req.query;
-
-      const users = await UserService.getAllUsers(limit, offset);
+      const users = await UserService.getAllUsers(
+        parseInt(limit),
+        parseInt(offset)
+      );
       res.status(200).json(users);
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Internal Server error:", error: error.message });
+        .json({ message: "Internal Server error", error: error.message });
     }
   }
 
-  // Tìm kiếm người dùng
   static async searchUsers(req, res) {
     try {
-      const query = req.query.q; // Sử dụng query parameter 'q' để truyền chuỗi tìm kiếm
+      const query = req.query.q;
       if (!query) {
         return res
           .status(400)
           .json({ message: "Query parameter 'q' is required" });
       }
-
       const users = await UserService.searchUsers(query);
-      ``;
       res.status(200).json(users);
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Internal Server error:", error: error.message });
+        .json({ message: "Internal Server error", error: error.message });
+    }
+  }
+
+  static async uploadAvatar(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const avatarUrl = `/uploads/${req.file.filename}`;
+      res.status(200).json({ avatarUrl });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Internal Server error", error: error.message });
     }
   }
 }

@@ -1,30 +1,42 @@
-// routes/user.js
+// src/routes/user.js
 const express = require("express");
+const multer = require("multer");
 const userController = require("../controllers/userController");
-const router = express.Router();
 const auth = require("../middleware/authMiddleware").verifyToken;
 const isAdmin = require("../middleware/authMiddleware").isAdmin;
 const isUser = require("../middleware/authMiddleware").isUser;
 
-// Get all users
-router.get("/", userController.getAllUsers);
+const router = express.Router();
+const upload = multer({ dest: "uploads/" });
 
-//Search user
-router.get("/search", userController.searchUsers);
+// Get all users (admin only)
+router.get("/", auth, isAdmin, userController.getAllUsers);
 
-// Get user by id
-router.get("/:id", userController.getUserById);
+// Search users
+router.get("/search", auth, userController.searchUsers);
+
+// Get user by ID
+router.get("/:id", auth, userController.getUserById);
 
 // Get user by email
 router.get("/email/:email", userController.getUserByEmail);
 
-// Create new user
+// Create new user (no auth required for registration)
 router.post("/", userController.createUser);
 
-// Update user by id
-router.put("/:id", userController.updateUser);
+// Update user by ID (user or admin)
+router.put("/:id", auth, upload.single("avatar"), userController.updateUser);
 
-// Delete user by id
-router.delete("/:id", userController.deleteUser);
+// Upload avatar
+router.post(
+  "/upload-avatar",
+  auth,
+
+  upload.single("avatar"),
+  userController.uploadAvatar
+);
+
+// Delete user by ID (admin only)
+router.delete("/:id", auth, isAdmin, userController.deleteUser);
 
 module.exports = router;
