@@ -23,6 +23,8 @@ class AuthService {
 
   static async register(fullName, username, email, password, role) {
     role = role === "admin" ? "admin" : "user";
+    const defaultAvatar =
+      "https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg";
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
       const user = await User.create({
@@ -31,6 +33,7 @@ class AuthService {
         email,
         password: hashedPassword,
         role,
+        avatar_url: defaultAvatar,
       });
       return { message: "User registered successfully", userId: user.user_id };
     } catch (error) {
@@ -58,6 +61,7 @@ class AuthService {
         email: user.email,
         avatar: user.avatar_url,
         joinedAt: user.created_at,
+        bio: user.bio,
       },
     };
   }
@@ -137,29 +141,6 @@ class AuthService {
     return { message: "Email đặt lại mật khẩu đã được gửi." };
   }
 
-  // static async forgotPassword(email) {
-  //   const user = await User.findOne({ where: { email } });
-  //   if (!user) throw new Error("Email không tồn tại");
-
-  //   // Tạo token reset
-  //   const token = crypto.randomBytes(32).toString("hex");
-  //   const expires = new Date(Date.now() + 3600000); // Hết hạn sau 1 giờ
-
-  //   user.password_reset_token = token;
-  //   user.password_reset_expires = expires;
-  //   await user.save();
-
-  //   // Sửa link reset để trỏ đến frontend thay vì backend
-  //   const resetLink = `http://localhost:3000/reset-password?token=${token}`;
-  //   await transporter.sendMail({
-  //     from: process.env.EMAIL_USER,
-  //     to: user.email,
-  //     subject: "Đặt lại mật khẩu",
-  //     html: `<p>Bạn đã yêu cầu đặt lại mật khẩu. Nhấp vào <a href="${resetLink}">đây</a> để tiếp tục.</p>`,
-  //   });
-
-  //   return { message: "Email đặt lại mật khẩu đã được gửi." };
-  // }
   static async resetPassword(token, newPassword) {
     const user = await User.findOne({
       where: {
