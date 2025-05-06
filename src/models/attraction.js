@@ -48,6 +48,10 @@ module.exports = (sequelize) => {
       rating_total: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+      },
+      visit_duration: {
+        type: DataTypes.INTEGER,
+        defaultValue: 30
       }
     },
     {

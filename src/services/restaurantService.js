@@ -97,6 +97,29 @@ class RestaurantService {
     );
     return result;
   }
+  
+  static async getRestaurantByTags(city, res_tags) {
+    try {
+      
+      const restaurants = await Restaurant.findAll({
+        where: {
+          city_id: city,
+          // Sử dụng toán tử '&&' trong PostgreSQL để kiểm tra overlap giữa tags
+          [Op.or]: res_tags.map((tag) => ({
+            tags: {
+              [Op.contains]: [tag], // JSONB chứa ít nhất 1 tag phù hợp
+            },
+          })),
+        },
+        order: [["rating_total", "DESC"]],
+      });
+      
+      return restaurants;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error fetching restaurants by tags');
+    }
+  }
 
   static async deleteRestaurant(id) {
     const restaurant = await Restaurant.findByPk(id);

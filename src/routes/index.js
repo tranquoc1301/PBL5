@@ -18,7 +18,7 @@ router.use("/reviews", reviewRoutes);
 // router.use("/activity", activityRoutes);
 router.use("/attractions", attractionRoutes);
 router.use("/comment", commentRoutes);
-router.use("/article", articleRoutes);
+router.use("/articles", articleRoutes);
 router.use("/ggmap", ggmapRoutes);
 router.use("/restaurants", restaurantRoutes);
 router.use("/cities", cityRoutes);

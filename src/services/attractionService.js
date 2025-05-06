@@ -11,7 +11,7 @@ class AttractionService {
     return await Attraction.findByPk(attractionId);
   }
 
-  static async createAttraction(data) {
+  static async createAttraction(data) { 
     return await Attraction.create(data);
   }
 
@@ -106,6 +106,29 @@ class AttractionService {
     );
 
     return result;
+  }
+
+  static async getAttractionsByTags(city, tags) {
+    try {
+      
+      const attractions = await Attraction.findAll({
+        where: {
+          city_id: city,
+          // Sử dụng toán tử '&&' trong PostgreSQL để kiểm tra overlap giữa tags
+          [Op.or]: tags.map((tag) => ({
+            tags: {
+              [Op.contains]: [tag], // JSONB contains 1 phần tử
+            },
+          })),
+        },
+        order: [["rating_total", "DESC"]],
+      });
+      
+      return attractions;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error fetching attractions by tags');
+    }
   }
 
   static async searchAttractions(query) {
