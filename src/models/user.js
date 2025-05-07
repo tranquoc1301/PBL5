@@ -41,9 +41,6 @@ module.exports = (sequelize) => {
       avatar_url: {
         type: DataTypes.STRING(255),
       },
-      social_links: {
-        type: DataTypes.JSONB,
-      },
       role: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -51,14 +48,6 @@ module.exports = (sequelize) => {
         validate: {
           isIn: [["user", "admin"]],
         },
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
-      updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
       },
       bio: {
         type: DataTypes.JSONB,
@@ -68,6 +57,14 @@ module.exports = (sequelize) => {
           website: "",
           location_preferences: [],
         },
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
     },
     {

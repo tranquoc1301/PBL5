@@ -56,16 +56,19 @@ exports.googleAuthCallback = (req, res, next) => {
       await user.save();
     }
 
-    // Chuẩn bị dữ liệu người dùng
+    // Chuẩn bị dữ liệu người dùng đầy đủ
     const userData = {
-      id: user.id,
+      user_id: user.user_id,
       username: user.username,
       email: user.email,
+      full_name: user.full_name || "",
       role: user.role,
-      avatar: user.avatar_url || null,
+      avatar_url: user.avatar_url || null,
+      created_at: user.created_at || new Date().toISOString(),
+      bio: user.bio || {},
     };
 
-    // Chuyển hướng đến trang trung gian với query params
+    // Chuyển hướng với dữ liệu đầy đủ
     const frontendUrl = "http://localhost:3000/auth-callback";
     const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
 
