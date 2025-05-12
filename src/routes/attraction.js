@@ -8,9 +8,15 @@ router.get("/search", attractionController.searchAttractions);
 // // Get all attractions
 router.get("/", attractionController.getAllAttractions);
 
-router.get("/special/:city_id", attractionController.getSpecialAttractionsByCity);
+router.get(
+  "/special/:city_id",
+  attractionController.getSpecialAttractionsByCity
+);
 router.get("/rank/:attractionId", attractionController.getAttractionRank);
-router.get("/topnearby/:attractionId",attractionController.getNearbyTopAttractions);
+router.get(
+  "/:attractionId/topnearby",
+  attractionController.getNearbyTopAttractions
+);
 // // Get attraction by ID
 router.get("/tags", attractionController.getAttractionsByTags);
 router.get("/:attractionId", attractionController.getAttractionById);

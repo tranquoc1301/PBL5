@@ -7,21 +7,25 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon / 2) ** 2;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
 function timeToMinutes(timeStr) {
-  const [h, m] = timeStr.split(':').map(Number);
+  const [h, m] = timeStr.split(":").map(Number);
   return h * 60 + m;
 }
 
 function minutesToTime(minutes) {
-  const h = Math.floor(minutes / 60).toString().padStart(2, '0');
-  const m = Math.floor(minutes % 60).toString().padStart(2, '0');
+  const h = Math.floor(minutes / 60)
+    .toString()
+    .padStart(2, "0");
+  const m = Math.floor(minutes % 60)
+    .toString()
+    .padStart(2, "0");
   return `${h}:${m}`;
 }
 function estimateTravelTime(from, to) {
@@ -35,7 +39,12 @@ function estimateTravelTime(from, to) {
   return (distance / speed) * 60;
 }
 
-function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '20:00') {
+function planSchedule(
+  attractions,
+  restaurants,
+  startTime = "08:00",
+  endTime = "20:00"
+) {
   // let currentTime = timeToMinutes(startTime);
   // const endTimeMinutes = timeToMinutes(endTime);
   // const schedule = [];
@@ -74,9 +83,9 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
   // return schedule;
 
   const DayStart = timeToMinutes(startTime); // 540
-  const LunchStart = timeToMinutes('11:00'); // 660
-  const LunchEnd = timeToMinutes('13:00');   // 780
-  const DayEnd = timeToMinutes(endTime);     // 900
+  const LunchStart = timeToMinutes("11:00"); // 660
+  const LunchEnd = timeToMinutes("13:00"); // 780
+  const DayEnd = timeToMinutes(endTime); // 900
 
   let currentTime = DayStart;
   const schedule = [];
@@ -101,6 +110,10 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       departure_time: minutesToTime(departure),
       duration_minutes: visit,
       travel_from_prev_minutes: Math.round(travel),
+      average_rating: curr.average_rating,
+      rating_total: curr.rating_total,
+      tags: curr.tags,
+      image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
     });
@@ -118,7 +131,14 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       arrival_time: minutesToTime(LunchStart),
       departure_time: minutesToTime(LunchEnd),
       duration_minutes: 120,
-      travel_from_prev_minutes: currentTime > LunchStart ? estimateTravelTime(schedule.at(-1), restaurant) : 0,
+      travel_from_prev_minutes:
+        currentTime > LunchStart
+          ? estimateTravelTime(schedule.at(-1), restaurant)
+          : 0,
+      average_rating: restaurant.average_rating,
+      rating_total: restaurant.rating_total,
+      image_url: restaurant.image_url,
+      tags: restaurant.tags,
       latitude: restaurant.latitude,
       longitude: restaurant.longitude,
     });
@@ -129,12 +149,13 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
 
   // Slot C: sau giờ ăn
   console.log("C");
-  
+
   for (let i = 0; i < attractions.length; i++) {
+    if (currentTime > endTime) break;
     const curr = attractions[i];
-    if (schedule.find((s) => s.name === curr.name)) continue; // skip if used befor
+    if (schedule.find((s) => s.name === curr.name)) continue; // bỏ qua nếu đã đc gọi tới từ trước
     const prev = schedule.at(-1);
-    
+
     const travel = prev ? estimateTravelTime(prev, curr) : 0;
     const visit = curr.visit_duration || 60;
     const arrival = currentTime + travel;
@@ -149,6 +170,10 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       departure_time: minutesToTime(departure),
       duration_minutes: visit,
       travel_from_prev_minutes: Math.round(travel),
+      average_rating: curr.average_rating,
+      rating_total: curr.rating_total,
+      tags: curr.tags,
+      image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
     });
@@ -182,49 +207,57 @@ exports.getAttractionById = async (req, res, next) => {
   }
 };
 
-exports.getAttractionRank = async(req, res, next) => {
+exports.getAttractionRank = async (req, res, next) => {
   try {
     const attractionId = parseInt(req.params.attractionId);
     const rank = await AttractionService.getAttractionRank(attractionId);
 
-    if(!rank) {
-      return res.status(404).json({message: 'Attraction not found!'});
+    if (!rank) {
+      return res.status(404).json({ message: "Attraction not found!" });
     }
     res.status(200).json({ attraction_id: attractionId, rank });
-  }catch (error) {
+  } catch (error) {
     next(error);
   }
-}
+};
 
-exports.getNearbyTopAttractions = async(req, res, next) => {
+exports.getNearbyTopAttractions = async (req, res, next) => {
   try {
     const attractionId = parseInt(req.params.attractionId);
-    const nearby = await AttractionService.getNearbyTopAttractions(attractionId);
-    if(!nearby) {
-      return res.status(404).json({message: 'Attraction not found!'});
+    const nearbyTopAttractions =
+      await AttractionService.getNearbyTopAttractions(attractionId);
+    if (!nearbyTopAttractions || nearbyTopAttractions.length === 0) {
+      return res.status(200).json({
+        nearbyTopAttractions: [],
+        message: "No nearby attractions found within 4km",
+      });
     }
-    res.status(200).json({ nearby });
-  }catch (error) {
+    res.status(200).json({ nearbyTopAttractions });
+  } catch (error) {
     next(error);
   }
-}
+};
+
 exports.getAttractionsByTags = async (req, res, next) => {
   try {
     const { city } = req.query;
     let { tags } = req.query;
-    const {startTime, endTime} = req.query;
-    let {res_tag} = req.query;
+
+    const { startTime, endTime } = req.query;
+    let { res_tag } = req.query;
     console.log(res_tag);
     if (!tags) {
       return res.status(400).json({ message: "City and tags are required" });
     }
 
-    // Nếu tags có nhiều hơn 1 
+    // Nếu tags có nhiều hơn 1
     if (typeof tags === "string" && tags.trim().startsWith("[")) {
       try {
         tags = JSON.parse(tags);
       } catch (e) {
-        return res.status(400).json({ message: "Tags must be a valid JSON array" });
+        return res
+          .status(400)
+          .json({ message: "Tags must be a valid JSON array" });
       }
     }
 
@@ -232,16 +265,18 @@ exports.getAttractionsByTags = async (req, res, next) => {
       try {
         res_tag = JSON.parse(res_tag);
       } catch (e) {
-        return res.status(400).json({ message: "Tags must be a valid JSON array" });
+        return res
+          .status(400)
+          .json({ message: "Tags must be a valid JSON array" });
       }
     }
 
     // Xuwr lí khi chỉ truyền vào 1 tag
     if (typeof tags === "string") {
-      tags = [tags]; 
+      tags = [tags];
     }
     if (typeof res_tag === "string") {
-      res_tag = [res_tag]; 
+      res_tag = [res_tag];
     }
 
     if (!Array.isArray(tags)) {
@@ -251,16 +286,33 @@ exports.getAttractionsByTags = async (req, res, next) => {
     if (!city) {
       return res.status(400).json({ message: "City is required" });
     }
-    const attractions = await AttractionService.getAttractionsByTags(city, tags);
-    const restaurants = await RestaurantService.getRestaurantByTags(city,res_tag);
-    
-    if (!attractions || attractions.length === 0 || !restaurants || restaurants.length === 0) {
-      return res.status(404).json({ message: "No attractions or restaurants found for the given filters" });
-    }
-  
-    const schedule = planSchedule(attractions, restaurants, startTime || '08:00', endTime || '20:00');
-    res.status(200).json(schedule);
+    const attractions = await AttractionService.getAttractionsByTags(
+      city,
+      tags
+    );
+    const restaurants = await RestaurantService.getRestaurantByTags(
+      city,
+      res_tag
+    );
 
+    if (
+      !attractions ||
+      attractions.length === 0 ||
+      !restaurants ||
+      restaurants.length === 0
+    ) {
+      return res.status(404).json({
+        message: "No attractions or restaurants found for the given filters",
+      });
+    }
+
+    const schedule = planSchedule(
+      attractions,
+      restaurants,
+      startTime || "08:00",
+      endTime || "20:00"
+    );
+    res.status(200).json(schedule);
   } catch (error) {
     next(error);
   }
@@ -269,7 +321,9 @@ exports.getAttractionsByTags = async (req, res, next) => {
 exports.getSpecialAttractionsByCity = async (req, res, next) => {
   try {
     const { city_id } = req.params;
-    const attractions = await AttractionService.getSpecialAttractionsByCity(city_id);
+    const attractions = await AttractionService.getSpecialAttractionsByCity(
+      city_id
+    );
     res.status(200).json(attractions);
   } catch (error) {
     next(error);
