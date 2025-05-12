@@ -1,6 +1,6 @@
 node_modules/
 .env
 src/views/
+src/config/
 serviceAccountKey.json
-src/config/config.json
 uploads/

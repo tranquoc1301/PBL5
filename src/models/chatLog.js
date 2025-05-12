@@ -1,40 +1,40 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const ChatLog = sequelize.define(
-    'ChatLog',
+    "ChatLog",
     {
       chat_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       message: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
       },
       response: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
       },
       intent: DataTypes.STRING(50),
       created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-      }
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
-      tableName: 'chat_logs',
-      timestamps: false
+      tableName: "chat_logs",
+      timestamps: false,
     }
   );
 
   ChatLog.associate = function (models) {
-    ChatLog.belongsTo(models.User, { foreignKey: 'user_id' });
+    ChatLog.belongsTo(models.User, { foreignKey: "user_id" });
   };
 
   return ChatLog;
