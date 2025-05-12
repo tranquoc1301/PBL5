@@ -101,6 +101,10 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       departure_time: minutesToTime(departure),
       duration_minutes: visit,
       travel_from_prev_minutes: Math.round(travel),
+      average_rating: curr.average_rating,
+      rating_total: curr.rating_total,
+      tags: curr.tags,
+      image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
     });
@@ -119,20 +123,26 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       departure_time: minutesToTime(LunchEnd),
       duration_minutes: 120,
       travel_from_prev_minutes: currentTime > LunchStart ? estimateTravelTime(schedule.at(-1), restaurant) : 0,
+      average_rating: restaurant.average_rating,
+      rating_total: restaurant.rating_total,
+      image_url: restaurant.image_url,
+      tags: restaurant.tags,
       latitude: restaurant.latitude,
       longitude: restaurant.longitude,
     });
     console.log("c");
+    
   }
-
+  
   currentTime = LunchEnd;
-
+  
   // Slot C: sau giờ ăn
   console.log("C");
   
   for (let i = 0; i < attractions.length; i++) {
+    if(currentTime > endTime) break; 
     const curr = attractions[i];
-    if (schedule.find((s) => s.name === curr.name)) continue; // skip if used befor
+    if (schedule.find((s) => s.name === curr.name)) continue; // bỏ qua nếu đã đc gọi tới từ trước
     const prev = schedule.at(-1);
     
     const travel = prev ? estimateTravelTime(prev, curr) : 0;
@@ -149,6 +159,10 @@ function planSchedule(attractions, restaurants, startTime = '08:00', endTime = '
       departure_time: minutesToTime(departure),
       duration_minutes: visit,
       travel_from_prev_minutes: Math.round(travel),
+      average_rating: curr.average_rating,
+      rating_total: curr.rating_total,
+      tags: curr.tags,
+      image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
     });
@@ -214,7 +228,6 @@ exports.getAttractionsByTags = async (req, res, next) => {
     let { tags } = req.query;
     const {startTime, endTime} = req.query;
     let {res_tag} = req.query;
-    console.log(res_tag);
     if (!tags) {
       return res.status(400).json({ message: "City and tags are required" });
     }

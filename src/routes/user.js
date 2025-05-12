@@ -10,13 +10,13 @@ const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 // Get all users (admin only)
-router.get("/", auth, isAdmin, userController.getAllUsers);
+router.get("/",  userController.getAllUsers);
 
 // Search users
-router.get("/search", auth, userController.searchUsers);
+router.get("/search", userController.searchUsers);
 
 // Get user by ID
-router.get("/:id", auth, userController.getUserById);
+router.get("/:id", userController.getUserById);
 
 // Get user by email
 router.get("/email/:email", userController.getUserByEmail);
@@ -25,18 +25,18 @@ router.get("/email/:email", userController.getUserByEmail);
 router.post("/", userController.createUser);
 
 // Update user by ID (user or admin)
-router.put("/:id", auth, upload.single("avatar"), userController.updateUser);
+router.put("/:id",  upload.single("avatar"), userController.updateUser);
 
 // Upload avatar
 router.post(
   "/upload-avatar",
-  auth,
+  
 
   upload.single("avatar"),
   userController.uploadAvatar
 );
 
 // Delete user by ID (admin only)
-router.delete("/:id", auth, isAdmin, userController.deleteUser);
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;
