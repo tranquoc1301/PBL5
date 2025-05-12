@@ -1,11 +1,7 @@
 {
   "development": {
     "username": "postgres",
-<<<<<<< HEAD
-    "password": "123456",
-=======
     "password": "Hoc12345",
->>>>>>> fc23616bdbaf74667360b1e51b76939fb273f8c4
     "database": "PBL5",
     "host": "127.0.0.1",
     "logging": false,
