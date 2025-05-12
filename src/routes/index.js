@@ -9,6 +9,7 @@ const articleRoutes = require("./article");
 const ggmapRoutes = require("./ggmap");
 const restaurantRoutes = require("./restaurant.js");
 const cityRoutes = require("./city.js");
+const tagRoutes = require("./tags.js");
 const router = express.Router();
 
 router.use("/auth", authRoutes);
@@ -22,6 +23,7 @@ router.use("/articles", articleRoutes);
 router.use("/ggmap", ggmapRoutes);
 router.use("/restaurants", restaurantRoutes);
 router.use("/cities", cityRoutes);
+router.use("/api/tags", tagRoutes);
 
 // router.use("/restaurant", restaurantRoutes);
 module.exports = router;
