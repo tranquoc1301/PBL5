@@ -1,5 +1,5 @@
 const { Restaurant } = require("../models");
-const { Op } = require("sequelize");
+const { Op, literal } = require("sequelize");
 const { Sequelize } = require("sequelize");
 class RestaurantService {
   static async getAllRestaurants() {
@@ -97,23 +97,49 @@ class RestaurantService {
     );
     return result;
   }
-  
+
+  // static async getRestaurantByTags(city, res_tags) {
+  //   try {
+
+  //     const restaurants = await Restaurant.findAll({
+  //       where: {
+  //         city_id: city,
+  //         // Sử dụng toán tử '&&' trong PostgreSQL để kiểm tra overlap giữa tags
+  //         [Op.or]: res_tags.map((tag) => ({
+  //           tags: {
+  //             [Op.contains]: [tag], // JSONB chứa ít nhất 1 tag phù hợp
+  //           },
+  //         })),
+  //       },
+  //       order: [["rating_total", "DESC"]],
+  //     });
+
+  //     return restaurants;
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error('Error fetching restaurants by tags');
+  //   }
+  // }
+
   static async getRestaurantByTags(city, res_tags) {
     try {
-      
+      console.log("RESTAURANT_SERVICE", res_tags);
+
+      const conditions = res_tags.map(tag =>
+        literal(`tags:: text ILIKE '%${tag}%'`)
+      );
+
       const restaurants = await Restaurant.findAll({
         where: {
           city_id: city,
-          // Sử dụng toán tử '&&' trong PostgreSQL để kiểm tra overlap giữa tags
-          [Op.or]: res_tags.map((tag) => ({
-            tags: {
-              [Op.contains]: [tag], // JSONB chứa ít nhất 1 tag phù hợp
-            },
-          })),
+          [Op.and]: [
+            { city_id: city },
+            { [Op.or]: conditions }
+          ]
         },
         order: [["rating_total", "DESC"]],
       });
-      
+
       return restaurants;
     } catch (error) {
       console.error(error);
