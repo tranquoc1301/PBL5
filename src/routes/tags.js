@@ -1,4 +1,3 @@
-// routes/tags.js
 const { sequelize } = require("../models");
 const { QueryTypes } = require("sequelize");
 const express = require("express");
@@ -15,9 +14,9 @@ router.get("/", async (req, res) => {
          FROM attractions
          WHERE tags IS NOT NULL
          UNION
-         SELECT jsonb_array_elements_text(tags->'cuisines') as tag, 'restaurants' as category
+         SELECT jsonb_array_elements_text(tags) as tag, 'restaurants' as category
          FROM restaurants
-         WHERE tags IS NOT NULL AND tags->'cuisines' IS NOT NULL
+         WHERE tags IS NOT NULL
        ) AS combined_tags
        ORDER BY category, tag`,
       { type: QueryTypes.SELECT }

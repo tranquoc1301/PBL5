@@ -15,12 +15,10 @@ class RestaurantService {
       where: {
         city_id: cityId,
       },
-
       order: [["rating_total", "DESC"]],
       limit: 4,
     });
   }
-
   static async createRestaurant(restaurantData) {
     return await Restaurant.create(restaurantData);
   }
@@ -100,7 +98,6 @@ class RestaurantService {
 
   // static async getRestaurantByTags(city, res_tags) {
   //   try {
-
   //     const restaurants = await Restaurant.findAll({
   //       where: {
   //         city_id: city,
@@ -125,17 +122,13 @@ class RestaurantService {
     try {
       console.log("RESTAURANT_SERVICE", res_tags);
 
-      const conditions = res_tags.map(tag =>
-        literal(`tags:: text ILIKE '%${tag}%'`)
+      const conditions = res_tags.map((tag) =>
       );
 
       const restaurants = await Restaurant.findAll({
         where: {
           city_id: city,
-          [Op.and]: [
-            { city_id: city },
-            { [Op.or]: conditions }
-          ]
+          [Op.and]: [{ city_id: city }, { [Op.or]: conditions }],
         },
         order: [["rating_total", "DESC"]],
       });
@@ -143,7 +136,7 @@ class RestaurantService {
       return restaurants;
     } catch (error) {
       console.error(error);
-      throw new Error('Error fetching restaurants by tags');
+      throw new Error("Error fetching restaurants by tags");
     }
   }
 
@@ -158,3 +151,4 @@ class RestaurantService {
 }
 
 module.exports = RestaurantService;
+

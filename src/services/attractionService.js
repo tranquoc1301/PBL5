@@ -11,7 +11,7 @@ class AttractionService {
     return await Attraction.findByPk(attractionId);
   }
 
-  static async createAttraction(data) { 
+  static async createAttraction(data) {
     return await Attraction.create(data);
   }
 
@@ -110,7 +110,6 @@ class AttractionService {
 
   static async getAttractionsByTags(city, tags) {
     try {
-      
       const attractions = await Attraction.findAll({
         where: {
           city_id: city,
@@ -123,11 +122,11 @@ class AttractionService {
         },
         order: [["rating_total", "DESC"]],
       });
-      
+
       return attractions;
     } catch (error) {
       console.error(error);
-      throw new Error('Error fetching attractions by tags');
+      throw new Error("Error fetching attractions by tags");
     }
   }
 

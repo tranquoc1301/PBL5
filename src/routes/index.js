@@ -10,6 +10,8 @@ const ggmapRoutes = require("./ggmap");
 const restaurantRoutes = require("./restaurant.js");
 const cityRoutes = require("./city.js");
 const tagRoutes = require("./tags.js");
+const recentlyViewedRoutes = require("./recentlyViewed.js");
+const favoriteRoutes = require("./favorite.js");
 const router = express.Router();
 
 router.use("/auth", authRoutes);
@@ -24,6 +26,8 @@ router.use("/ggmap", ggmapRoutes);
 router.use("/restaurants", restaurantRoutes);
 router.use("/cities", cityRoutes);
 router.use("/api/tags", tagRoutes);
+router.use("/recently-viewed", recentlyViewedRoutes);
+router.use("/favorites", favoriteRoutes);
 
 // router.use("/restaurant", restaurantRoutes);
 module.exports = router;
