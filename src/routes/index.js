@@ -22,7 +22,7 @@ router.use("/reviews", reviewRoutes);
 router.use("/attractions", attractionRoutes);
 router.use("/comment", commentRoutes);
 router.use("/articles", articleRoutes);
-router.use("/ggmap", ggmapRoutes);
+// router.use("/ggmap", ggmapRoutes);
 router.use("/restaurants", restaurantRoutes);
 router.use("/cities", cityRoutes);
 router.use("/api/tags", tagRoutes);

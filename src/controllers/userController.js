@@ -100,7 +100,6 @@ class UserController {
         userData.avatar_url = req.body.avatar_url;
       }
 
-      console.log("Updating user with data:", userData);
       const updatedUser = await UserService.updateUser(userId, userData);
       res.status(200).json(updatedUser);
     } catch (error) {

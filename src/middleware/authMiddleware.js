@@ -22,24 +22,25 @@ exports.verifyToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    return res.status(400).json({ error: "Invalid token" });
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ error: "Token expired", code: "TOKEN_EXPIRED" });
+    }
+    return res.status(400).json({ error: "Invalid token: " + error.message });
   }
 };
 
 exports.isAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== "admin") {
-    return res
-      .status(403)
-      .json({ error: "Forbidden: Admin access required." });
+    return res.status(403).json({ error: "Forbidden: Admin access required." });
   }
   next();
 };
 
 exports.isUser = (req, res, next) => {
   if (!req.user || req.user.role !== "user") {
-    return res
-      .status(403)
-      .json({ error: "Forbidden: User access required." });
+    return res.status(403).json({ error: "Forbidden: User access required." });
   }
   next();
 };

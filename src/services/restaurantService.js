@@ -123,6 +123,7 @@ class RestaurantService {
       console.log("RESTAURANT_SERVICE", res_tags);
 
       const conditions = res_tags.map((tag) =>
+        literal(`tags @> '["${tag}"]'::jsonb`)
       );
 
       const restaurants = await Restaurant.findAll({
@@ -151,4 +152,3 @@ class RestaurantService {
 }
 
 module.exports = RestaurantService;
-

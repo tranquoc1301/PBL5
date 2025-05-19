@@ -30,7 +30,6 @@ class FavoriteService {
 
   async getFavoritesByUser(userId) {
     try {
-      console.log("Fetching favorites for user:", userId);
       const favorites = await Favorite.findAll({
         where: { user_id: userId },
         include: [
@@ -38,7 +37,6 @@ class FavoriteService {
           { model: Restaurant, as: "Restaurant" },
         ],
       });
-      console.log("Favorites fetched:", JSON.stringify(favorites, null, 2));
       return favorites;
     } catch (error) {
       console.error("Error fetching favorites:", error.message, error.stack);
