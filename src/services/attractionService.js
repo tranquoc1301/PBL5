@@ -1,5 +1,5 @@
 const { Attraction } = require("../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const { Sequelize } = require("sequelize");
 
 class AttractionService {
@@ -41,6 +41,32 @@ class AttractionService {
     }
 
     return attractions;
+  }
+
+  static async getAttractionByCity(cityId) {
+    const attractions = await Attraction.findAll({
+      where : {
+        city_id : cityId
+      }
+    });
+    if (!attractions || attractions.length === 0) {
+      throw new Error("Không tìm thấy địa điểm nổi bật nào cho thành phố này");
+    }
+
+    return attractions;
+  }
+
+  static async getAttractionByName(name, city_id) {
+    const attraction = await Attraction.findOne({
+      where: {
+        city_id: city_id,
+        name: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+      limit: 1
+    });
+    return attraction;
   }
 
   static async getAttractionRank(attractionId) {

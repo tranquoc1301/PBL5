@@ -1,5 +1,6 @@
 const { Restaurant } = require("../models");
 const { Op, literal } = require("sequelize");
+const { Op, literal } = require("sequelize");
 const { Sequelize } = require("sequelize");
 class RestaurantService {
   static async getAllRestaurants() {
@@ -95,9 +96,10 @@ class RestaurantService {
     );
     return result;
   }
-
+  
   // static async getRestaurantByTags(city, res_tags) {
   //   try {
+  //     console.log("RESTAURANT_SERVICE", res_tags)
   //     const restaurants = await Restaurant.findAll({
   //       where: {
   //         city_id: city,
@@ -110,7 +112,7 @@ class RestaurantService {
   //       },
   //       order: [["rating_total", "DESC"]],
   //     });
-
+      
   //     return restaurants;
   //   } catch (error) {
   //     console.error(error);
@@ -119,27 +121,55 @@ class RestaurantService {
   // }
 
   static async getRestaurantByTags(city, res_tags) {
-    try {
-      console.log("RESTAURANT_SERVICE", res_tags);
+  try {
+   
 
-      const conditions = res_tags.map((tag) =>
-        literal(`tags @> '["${tag}"]'::jsonb`)
-      );
+    const conditions = res_tags.map(tag =>
+      literal(`tags::text ILIKE '%${tag}%'`)
+    );
 
-      const restaurants = await Restaurant.findAll({
-        where: {
-          city_id: city,
-          [Op.and]: [{ city_id: city }, { [Op.or]: conditions }],
-        },
-        order: [["rating_total", "DESC"]],
-      });
+    const restaurants = await Restaurant.findAll({
+      where: {
+        city_id: city,
+        [Op.and]: [
+          { city_id: city },
+          { [Op.or]: conditions }
+        ]
+      },
+      order: [["rating_total", "DESC"]],
+    });
 
-      return restaurants;
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error fetching restaurants by tags");
-    }
+    return restaurants;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error fetching restaurants by tags');
   }
+}
+//   static async getRestaurantByTags(city, res_tags) {
+//     try {
+//       // Escape và format các tag
+//       const conditions = res_tags.map(tag =>
+//         `tags::jsonb::text ILIKE '%${tag}%'`
+//       ).join(" OR ");
+
+//       const query = `
+//         SELECT * FROM restaurants
+//         WHERE city_id = :city
+//         AND (${conditions})
+//         ORDER BY rating_total DESC;
+//       `;
+
+//       const restaurants = await sequelize.query(query, {
+//         replacements: { city },
+//         type: sequelize.QueryTypes.SELECT,
+//       });
+
+//       return restaurants;
+//   } catch (error) {
+//     console.error(error);
+//     throw new Error('Error fetching restaurants by tags');
+//   }
+// }
 
   static async deleteRestaurant(id) {
     const restaurant = await Restaurant.findByPk(id);
