@@ -103,6 +103,20 @@ exports.authSuccess = (req, res) => {
   }
 };
 
+exports.refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ error: "Refresh token is required." });
+    }
+
+    const result = await AuthService.refreshToken(refreshToken);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
+  }
+};
+
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;

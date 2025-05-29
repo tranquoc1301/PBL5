@@ -1,5 +1,6 @@
 const { Restaurant } = require("../models");
 const { Op, literal } = require("sequelize");
+const { Op, literal } = require("sequelize");
 const { Sequelize } = require("sequelize");
 class RestaurantService {
   static async getAllRestaurants() {
@@ -15,12 +16,10 @@ class RestaurantService {
       where: {
         city_id: cityId,
       },
-
       order: [["rating_total", "DESC"]],
       limit: 4,
     });
   }
-
   static async createRestaurant(restaurantData) {
     return await Restaurant.create(restaurantData);
   }

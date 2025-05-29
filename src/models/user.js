@@ -58,6 +58,10 @@ module.exports = (sequelize) => {
           location_preferences: [],
         },
       },
+      refresh_token: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
