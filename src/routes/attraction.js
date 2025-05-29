@@ -7,11 +7,13 @@ router.get("/search", attractionController.searchAttractions);
 
 // // Get all attractions
 router.get("/", attractionController.getAllAttractions);
-
+router.get("/name/:name/cityid/:city_id", attractionController.getAttractionByName);
 router.get(
   "/special/:city_id",
   attractionController.getSpecialAttractionsByCity
 );
+
+router.get("/city/:city_id", attractionController.getAttractionByCity);
 router.get("/rank/:attractionId", attractionController.getAttractionRank);
 router.get(
   "/:attractionId/topnearby",
