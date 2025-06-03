@@ -6,10 +6,10 @@ const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 // // Get all attractions
-router.get("/", attractionController.getAllAttractions);
+router.get("/", AttractionController.getAllAttractions);
 router.get(
   "/name/:name/cityid/:city_id",
-  attractionController.getAttractionByName
+  AttractionController.getAttractionByName
 );
 // Search attractions by name
 router.get("/search", AttractionController.searchAttractions);
@@ -23,8 +23,8 @@ router.get(
   AttractionController.getSpecialAttractionsByCity
 );
 
-router.get("/city/:city_id", attractionController.getAttractionByCity);
-router.get("/rank/:attractionId", attractionController.getAttractionRank);
+router.get("/city/:city_id", AttractionController.getAttractionByCity);
+router.get("/rank/:attractionId", AttractionController.getAttractionRank);
 router.get(
   "/:attractionId/topnearby",
   AttractionController.getNearbyTopAttractions

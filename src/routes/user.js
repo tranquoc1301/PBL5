@@ -9,11 +9,10 @@ const isUser = require("../middleware/authMiddleware").isUser;
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-// Get all users (admin only)
-router.get("/",  userController.getAllUsers);
+router.get("/", auth, isAdmin, userController.getAllUsers);
 
 // Search users
-router.get("/search", userController.searchUsers);
+router.get("/search", auth, userController.searchUsers);
 
 // Get user by ID
 router.get("/:id", userController.getUserById);
@@ -22,21 +21,21 @@ router.get("/:id", userController.getUserById);
 router.get("/email/:email", userController.getUserByEmail);
 
 // Create new user (no auth required for registration)
-router.post("/", userController.createUser);
+router.post("/", auth, isAdmin, userController.createUser);
 
 // Update user by ID (user or admin)
-router.put("/:id",  upload.single("avatar"), userController.updateUser);
+router.put("/:id", upload.single("avatar"), userController.updateUser);
 
 // Upload avatar
 router.post(
   "/upload-avatar",
-  
-
+  auth,
+  isUser,
   upload.single("avatar"),
   userController.uploadAvatar
 );
 
 // Delete user by ID (admin only)
-router.delete("/:id", userController.deleteUser);
+router.delete("/:id", auth, isAdmin, userController.deleteUser);
 
 module.exports = router;

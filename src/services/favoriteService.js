@@ -33,9 +33,40 @@ class FavoriteService {
       const favorites = await Favorite.findAll({
         where: { user_id: userId },
         include: [
-          { model: Attraction, as: "Attraction" },
-          { model: Restaurant, as: "Restaurant" },
+          {
+            model: Attraction,
+            as: "Attraction",
+            required: false,
+            attributes: [
+              "attraction_id",
+              "name",
+              "description",
+              "address",
+              "average_rating",
+              "rating_total",
+              "image_url",
+              "tags",
+            ],
+          },
+          {
+            model: Restaurant,
+            as: "Restaurant",
+            required: false,
+            attributes: [
+              "restaurant_id",
+              "name",
+              "description",
+              "address",
+              "average_rating",
+              "rating_total",
+              "image_url",
+              "tags",
+              "phone_number",
+              "hours",
+            ],
+          },
         ],
+        order: [["created_at", "DESC"]],
       });
       return favorites;
     } catch (error) {

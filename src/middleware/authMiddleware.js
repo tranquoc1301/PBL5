@@ -3,7 +3,7 @@ const { User } = require("../models");
 require("dotenv").config();
 
 exports.verifyToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const authHeader = req.headers.authorization;
   const token =
     authHeader && authHeader.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
@@ -19,6 +19,7 @@ exports.verifyToken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
+
     req.user = user;
     next();
   } catch (error) {
@@ -27,7 +28,10 @@ exports.verifyToken = async (req, res, next) => {
         .status(401)
         .json({ error: "Token expired", code: "TOKEN_EXPIRED" });
     }
-    return res.status(400).json({ error: "Invalid token: " + error.message });
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    return res.status(500).json({ error: "Token verification failed" });
   }
 };
 
@@ -42,5 +46,28 @@ exports.isUser = (req, res, next) => {
   if (!req.user || req.user.role !== "user") {
     return res.status(403).json({ error: "Forbidden: User access required." });
   }
+  next();
+};
+
+exports.optionalAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token =
+    authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
+
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.user_id);
+    req.user = user || null;
+  } catch (error) {
+    req.user = null;
+  }
+
   next();
 };
