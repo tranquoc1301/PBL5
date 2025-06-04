@@ -55,4 +55,43 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/attractions", async (req, res) => {
+  try {
+    const attractions = await sequelize.query(
+      `SELECT DISTINCT jsonb_array_elements_text(tags) as tag
+       FROM attractions
+       WHERE tags IS NOT NULL`,
+      { type: QueryTypes.SELECT }
+    );
+
+    const tags = attractions.map((item) => item.tag).sort();
+    res.json(tags);
+  } catch (error) {
+    console.error("Error fetching attraction tags:", error);
+    res.status(500).json({
+      error: "Failed to fetch attraction tags",
+      details: error.message,
+    });
+  }
+});
+router.get("/restaurants", async (req, res) => {
+  try {
+    const restaurants = await sequelize.query(
+      `SELECT DISTINCT jsonb_array_elements_text(tags) as tag
+       FROM restaurants
+       WHERE tags IS NOT NULL`,
+      { type: QueryTypes.SELECT }
+    );
+
+    const tags = restaurants.map((item) => item.tag).sort();
+    res.json(tags);
+  } catch (error) {
+    console.error("Error fetching restaurant tags:", error);
+    res.status(500).json({
+      error: "Failed to fetch restaurant tags",
+      details: error.message,
+    });
+  }
+});
+
 module.exports = router;

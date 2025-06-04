@@ -1,5 +1,6 @@
 const { City } = require("../models");
 const { Op } = require("sequelize");
+const Sequelize = require("sequelize");
 
 class CityService {
   static async getAllCities() {
@@ -15,14 +16,52 @@ class CityService {
   }
 
   static async getCityByName(name) {
-    const city = await City.findOne({
-      where: {
-        name: {
-          [Op.like]: `%${name}%`,
+    try {
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return [];
+      }
+
+      const sanitizedName = name.trim();
+      if (sanitizedName.length > 100) {
+        throw new Error("Search query cannot exceed 100 characters");
+      }
+
+      // Search with case-insensitive partial match, unaccent, and trigram similarity
+      const cities = await City.findAll({
+        where: {
+          [Op.or]: [
+            // Case-insensitive partial match
+            { name: { [Op.iLike]: `%${sanitizedName}%` } },
+            // Unaccented match for Unicode (e.g., "Hà" matches "Ha")
+            Sequelize.where(Sequelize.fn("unaccent", Sequelize.col("name")), {
+              [Op.iLike]: `%${sanitizedName}%`,
+            }),
+          ],
         },
-      },
-    });
-    return city; // Trả về null nếu không tìm thấy, controller sẽ xử lý
+        // Add trigram similarity for fuzzy matching
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(`SIMILARITY(name, '${sanitizedName}')`),
+              "similarity",
+            ],
+          ],
+        },
+        // Order by similarity (fuzzy) and exactness
+        order: [
+          [Sequelize.literal("similarity"), "DESC"],
+          [Sequelize.col("name"), "ASC"],
+        ],
+        // Limit to prevent overload
+        limit: 100,
+      });
+
+      console.log(`Search query: "${sanitizedName}", Results:`, cities.length); // Debug log
+      return cities || [];
+    } catch (error) {
+      console.error("Error searching cities:", error);
+      throw new Error("Error searching cities: " + error.message);
+    }
   }
 
   static async updateCity(id, cityData) {
