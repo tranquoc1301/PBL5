@@ -195,23 +195,26 @@ exports.getAllAttractions = async (req, res, next) => {
 
 exports.getAttractionByName = async (req, res, next) => {
   try {
-    const {name, city_id} = req.params;
-    const attractions = await AttractionService.getAttractionByName(name, city_id);
+    const { name, city_id } = req.params;
+    const attractions = await AttractionService.getAttractionByName(
+      name,
+      city_id
+    );
     res.status(200).json(attractions);
   } catch (error) {
     next(error);
   }
-}
+};
 
 exports.getAttractionByCity = async (req, res, next) => {
   try {
-    const {city_id} = req.params;
+    const { city_id } = req.params;
     const attractions = await AttractionService.getAttractionByCity(city_id);
     res.status(200).json(attractions);
   } catch (err) {
     next(err);
   }
-}
+};
 // Lấy địa điểm theo ID
 exports.getAttractionById = async (req, res, next) => {
   try {
@@ -390,11 +393,9 @@ exports.createAttraction = async (req, res, next) => {
         try {
           imageUrl = JSON.parse(imageUrl);
         } catch (e) {
-          return res
-            .status(400)
-            .json({
-              message: "image_url must be a valid JSON array or string",
-            });
+          return res.status(400).json({
+            message: "image_url must be a valid JSON array or string",
+          });
         }
       } else {
         imageUrl = [imageUrl];
@@ -425,11 +426,9 @@ exports.updateAttraction = async (req, res, next) => {
         try {
           imageUrl = JSON.parse(imageUrl);
         } catch (e) {
-          return res
-            .status(400)
-            .json({
-              message: "image_url must be a valid JSON array or string",
-            });
+          return res.status(400).json({
+            message: "image_url must be a valid JSON array or string",
+          });
         }
       } else {
         imageUrl = [imageUrl];
