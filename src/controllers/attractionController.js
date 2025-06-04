@@ -39,48 +39,52 @@ function estimateTravelTime(from, to) {
   return (distance / speed) * 60;
 }
 
+
+function planMultiDaySchedule(
+  attractions,
+  restaurants,
+  startTime = "08:00",
+  endTime = "20:00",
+  maxDays = 5,
+) {
+  const remainingAttractions = [...attractions];
+  const remainingRestaurants = [...restaurants];
+  const fullSchedule = [];
+
+  for (let day = 1; day <= maxDays; day++) {
+    if (remainingAttractions.length === 0 && remainingRestaurants.length === 0) break;
+
+    const dailySchedule = planSchedule(remainingAttractions, remainingRestaurants, startTime, endTime, day);
+
+    
+    dailySchedule.forEach(item => item.day = day);
+
+    fullSchedule.push(...dailySchedule);
+
+    
+    for (const item of dailySchedule) {
+      if (item.type === "attraction") {
+        const index = remainingAttractions.findIndex(a => a.attraction_id === item.id);
+        if (index !== -1) remainingAttractions.splice(index, 1);
+      } else if (item.type === "restaurant") {
+        const index = remainingRestaurants.findIndex(r => r.restaurant_id === item.id);
+        if (index !== -1) remainingRestaurants.splice(index, 1);
+      }
+    }
+  }
+
+  return fullSchedule;
+}
+
+
 function planSchedule(
   attractions,
   restaurants,
   startTime = "08:00",
-  endTime = "20:00"
+  endTime = "20:00",
+  day,
 ) {
-  // let currentTime = timeToMinutes(startTime);
-  // const endTimeMinutes = timeToMinutes(endTime);
-  // const schedule = [];
-
-  // for (let i = 0; i < attractions.length; i++) {
-  //   const current = attractions[i];
-  //   const prev = i === 0 ? null : attractions[i - 1];
-
-  //   let travelMinutes = 0;
-  //   if (prev) {
-  //     const distance = haversineDistance(
-  //       parseFloat(prev.latitude), parseFloat(prev.longitude),
-  //       parseFloat(current.latitude), parseFloat(current.longitude)
-  //     );
-  //     const speed = 30; // tốc độ trung bình, cái này sau này tính tiếp
-  //     travelMinutes = (distance / speed) * 60;
-  //   }
-
-  //   const visitMinutes = current.visit_duration || 60;
-  //   const arrivalTime = currentTime + travelMinutes;
-
-  //   if (arrivalTime + visitMinutes > endTimeMinutes) {
-  //     break;
-  //   }
-
-  //   schedule.push({
-  //     name: current.name,
-  //     arrival_time: minutesToTime(arrivalTime),
-  //     visit_duration: visitMinutes,
-  //     departure_time: minutesToTime(arrivalTime + visitMinutes),
-  //     travel_from_prev_minutes: Math.round(travelMinutes)
-  //   });
-
-  //   currentTime = arrivalTime + visitMinutes;
-  // }
-  // return schedule;
+  
 
   const DayStart = timeToMinutes(startTime); // 540
   const LunchStart = timeToMinutes("11:00"); // 660
@@ -105,6 +109,8 @@ function planSchedule(
 
     schedule.push({
       type: "attraction",
+      day: day,
+      id: curr.attraction_id,
       name: curr.name,
       arrival_time: minutesToTime(arrival),
       departure_time: minutesToTime(departure),
@@ -116,6 +122,7 @@ function planSchedule(
       image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
+      warning: ''
     });
 
     currentTime = departure;
@@ -127,6 +134,8 @@ function planSchedule(
   if (restaurant) {
     schedule.push({
       type: "restaurant",
+      day: day,
+      id: restaurant.restaurant_id,
       name: restaurant.name,
       arrival_time: minutesToTime(LunchStart),
       departure_time: minutesToTime(LunchEnd),
@@ -141,6 +150,7 @@ function planSchedule(
       tags: restaurant.tags,
       latitude: restaurant.latitude,
       longitude: restaurant.longitude,
+      warning: ''
     });
     console.log("c");
   }
@@ -165,6 +175,8 @@ function planSchedule(
 
     schedule.push({
       type: "attraction",
+      day: day,
+      id: curr.attraction_id,
       name: curr.name,
       arrival_time: minutesToTime(arrival),
       departure_time: minutesToTime(departure),
@@ -176,6 +188,7 @@ function planSchedule(
       image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
+      warning: ''
     });
 
     currentTime = departure;
@@ -207,6 +220,15 @@ exports.getAttractionByCity = async (req, res, next) => {
   try {
     const {city_id} = req.params;
     const attractions = await AttractionService.getAttractionByCity(city_id);
+    res.status(200).json(attractions);
+  } catch (err) {
+    next(err);
+  }
+}
+
+exports.getTopRatingAttraction = async(req, res, next) => {
+  try {
+    const attractions = await AttractionService.getTopRatingAttraction();
     res.status(200).json(attractions);
   } catch (err) {
     next(err);
@@ -261,8 +283,8 @@ exports.getAttractionsByTags = async (req, res, next) => {
   try {
     const { city } = req.query;
     let { tags } = req.query;
-
     const { startTime, endTime } = req.query;
+    const { startDate, endDate} = req.query;
     let { res_tag } = req.query;
     console.log(res_tag);
     if (!tags) {
@@ -324,12 +346,13 @@ exports.getAttractionsByTags = async (req, res, next) => {
         message: "No attractions or restaurants found for the given filters",
       });
     }
-
-    const schedule = planSchedule(
+    console.log("startDate: ", startDate);
+    const schedule = planMultiDaySchedule(
       attractions,
       restaurants,
       startTime || "08:00",
-      endTime || "20:00"
+      endTime || "20:00",
+
     );
     res.status(200).json(schedule);
   } catch (error) {
@@ -397,3 +420,41 @@ exports.searchAttractions = async (req, res, next) => {
     next(error);
   }
 };
+
+
+// let currentTime = timeToMinutes(startTime);
+  // const endTimeMinutes = timeToMinutes(endTime);
+  // const schedule = [];
+
+  // for (let i = 0; i < attractions.length; i++) {
+  //   const current = attractions[i];
+  //   const prev = i === 0 ? null : attractions[i - 1];
+
+  //   let travelMinutes = 0;
+  //   if (prev) {
+  //     const distance = haversineDistance(
+  //       parseFloat(prev.latitude), parseFloat(prev.longitude),
+  //       parseFloat(current.latitude), parseFloat(current.longitude)
+  //     );
+  //     const speed = 30; // tốc độ trung bình, cái này sau này tính tiếp
+  //     travelMinutes = (distance / speed) * 60;
+  //   }
+
+  //   const visitMinutes = current.visit_duration || 60;
+  //   const arrivalTime = currentTime + travelMinutes;
+
+  //   if (arrivalTime + visitMinutes > endTimeMinutes) {
+  //     break;
+  //   }
+
+  //   schedule.push({
+  //     name: current.name,
+  //     arrival_time: minutesToTime(arrivalTime),
+  //     visit_duration: visitMinutes,
+  //     departure_time: minutesToTime(arrivalTime + visitMinutes),
+  //     travel_from_prev_minutes: Math.round(travelMinutes)
+  //   });
+
+  //   currentTime = arrivalTime + visitMinutes;
+  // }
+  // return schedule;

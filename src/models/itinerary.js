@@ -9,6 +9,15 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "users",
+          key: "user_id",
+        },
+        onDelete: "CASCADE",
+      },
       title: {
         type: DataTypes.STRING(100),
         allowNull: false,

@@ -27,6 +27,18 @@ class AttractionService {
     return await attraction.destroy();
   }
 
+  static async getTopRatingAttraction() {
+    const attractions = await Attraction.findAll({
+      order: [["rating_total", "DESC"]],
+      limit: 4,
+    });
+    if (!attractions || attractions.length === 0) {
+      throw new Error("Không tìm thấy địa điểm nổi bật nào !");
+    }
+
+    return attractions;
+  }
+
   static async getSpecialAttractionsByCity(cityId) {
     const attractions = await Attraction.findAll({
       where: {

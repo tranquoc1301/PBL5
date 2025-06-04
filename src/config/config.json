@@ -2,15 +2,15 @@
   "development": {
     "username": "postgres",
     "password": "123456",
-    "database": "PBL5_DB",
+    "database": "PBL5_Backup",
     "host": "127.0.0.1",
     "logging": false,
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "Hoc12345",
-    "database": "PBL5",
+    "password": "123456",
+    "database": "PBL5_Backup",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },

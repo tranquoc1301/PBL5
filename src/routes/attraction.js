@@ -22,7 +22,7 @@ router.get(
 // // Get attraction by ID
 router.get("/tags", attractionController.getAttractionsByTags);
 router.get("/:attractionId", attractionController.getAttractionById);
-
+router.get("/gettoprating", attractionController.getTopRatingAttraction);
 // // Create new attraction
 router.post("/", attractionController.createAttraction);
 
