@@ -1,6 +1,6 @@
-const { messaging } = require("firebase-admin");
 const AttractionService = require("../services/attractionService");
 const RestaurantService = require("../services/restaurantService");
+const { cloudinaryInstance } = require("../config/configureCloudinary");
 // hàm tính khoảng cách giữa 2 địa điểm theo đường thẳng (công thức haversine)
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const toRad = (x) => (x * Math.PI) / 180;
@@ -350,35 +350,145 @@ exports.getSpecialAttractionsByCity = async (req, res, next) => {
 };
 
 // Tạo mới địa điểm
-exports.createAttraction = async (req, res, next) => {
+exports.uploadImages = async (req, res, next) => {
   try {
-    const newAttraction = await AttractionService.createAttraction(req.body);
-    res.status(201).json(newAttraction);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    const uploadPromises = req.files.map(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinaryInstance.uploader.upload_stream(
+            { folder: "attractions" }, // Store in 'attractions' folder on Cloudinary
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+          stream.end(file.buffer);
+        })
+    );
+
+    const imageUrls = await Promise.all(uploadPromises);
+    res.status(200).json({ imageUrls });
   } catch (error) {
-    next(error);
+    console.error("Error uploading images:", error);
+    res
+      .status(400)
+      .json({ message: "Failed to upload images", error: error.message });
   }
 };
 
-// Cập nhật địa điểm
+exports.createAttraction = async (req, res, next) => {
+  try {
+    const attractionData = req.body;
+    // Normalize image_url to an array
+    let imageUrl = attractionData.image_url || [];
+    if (typeof imageUrl === "string") {
+      if (imageUrl.trim().startsWith("[")) {
+        try {
+          imageUrl = JSON.parse(imageUrl);
+        } catch (e) {
+          return res
+            .status(400)
+            .json({
+              message: "image_url must be a valid JSON array or string",
+            });
+        }
+      } else {
+        imageUrl = [imageUrl];
+      }
+    }
+    attractionData.image_url = Array.isArray(imageUrl) ? imageUrl : [];
+
+    const newAttraction = await AttractionService.createAttraction(
+      attractionData
+    );
+    res.status(201).json(newAttraction);
+  } catch (error) {
+    console.error("Error creating attraction:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Update updateAttraction to handle image_url and delete old images
 exports.updateAttraction = async (req, res, next) => {
   try {
+    const { attractionId } = req.params;
+    const attractionData = req.body;
+    console.log("Received req.body:", req.body); // Debug payload
+    // Normalize image_url to an array
+    let imageUrl = attractionData.image_url || [];
+    if (typeof imageUrl === "string") {
+      if (imageUrl.trim().startsWith("[")) {
+        try {
+          imageUrl = JSON.parse(imageUrl);
+        } catch (e) {
+          return res
+            .status(400)
+            .json({
+              message: "image_url must be a valid JSON array or string",
+            });
+        }
+      } else {
+        imageUrl = [imageUrl];
+      }
+    }
+    attractionData.image_url = Array.isArray(imageUrl) ? imageUrl : [];
+
+    // Delete old images if new ones are provided
+    if (attractionData.image_url.length > 0) {
+      const existingAttraction = await AttractionService.getAttractionById(
+        attractionId
+      );
+      if (
+        existingAttraction.image_url &&
+        existingAttraction.image_url.length > 0
+      ) {
+        const deletePromises = existingAttraction.image_url.map((url) => {
+          const publicId = url.split("/").pop().split(".")[0];
+          return cloudinaryInstance.uploader.destroy(`attractions/${publicId}`);
+        });
+        await Promise.all(deletePromises);
+      }
+    }
+
     const updatedAttraction = await AttractionService.updateAttraction(
-      req.params.attractionId,
-      req.body
+      attractionId,
+      attractionData
     );
     res.status(200).json(updatedAttraction);
   } catch (error) {
-    next(error);
+    console.error("Error updating attraction:", error);
+    res.status(400).json({ message: error.message });
   }
 };
-
-// Xóa địa điểm
+// Update deleteAttraction to delete associated images
 exports.deleteAttraction = async (req, res, next) => {
   try {
-    await AttractionService.deleteAttraction(req.params.attractionId);
-    res.status(204).json({ message: "Đã xóa thành công" });
+    const { attractionId } = req.params;
+    const attraction = await AttractionService.getAttractionById(attractionId);
+    if (!attraction) {
+      return res.status(404).json({ message: "Attraction not found" });
+    }
+
+    // Delete associated images from Cloudinary
+    if (attraction.image_url && attraction.image_url.length > 0) {
+      const deletePromises = attraction.image_url.map((url) => {
+        const publicId = url.split("/").pop().split(".")[0];
+        return cloudinaryInstance.uploader.destroy(`attractions/${publicId}`);
+      });
+      await Promise.all(deletePromises);
+    }
+
+    await AttractionService.deleteAttraction(attractionId);
+    res.status(204).json({ message: "Attraction deleted successfully" });
   } catch (error) {
-    next(error);
+    console.error("Error deleting attraction:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server error", error: error.message });
   }
 };
 

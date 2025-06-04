@@ -121,19 +121,14 @@ class RestaurantService {
 
   static async getRestaurantByTags(city, res_tags) {
     try {
-
-
-      const conditions = res_tags.map(tag =>
+      const conditions = res_tags.map((tag) =>
         literal(`tags::text ILIKE '%${tag}%'`)
       );
 
       const restaurants = await Restaurant.findAll({
         where: {
           city_id: city,
-          [Op.and]: [
-            { city_id: city },
-            { [Op.or]: conditions }
-          ]
+          [Op.and]: [{ city_id: city }, { [Op.or]: conditions }],
         },
         order: [["rating_total", "DESC"]],
       });
@@ -141,7 +136,7 @@ class RestaurantService {
       return restaurants;
     } catch (error) {
       console.error(error);
-      throw new Error('Error fetching restaurants by tags');
+      throw new Error("Error fetching restaurants by tags");
     }
   }
   //   static async getRestaurantByTags(city, res_tags) {
