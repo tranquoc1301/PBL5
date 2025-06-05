@@ -1,5 +1,6 @@
 const { Restaurant } = require("../models");
 const { Op, literal } = require("sequelize");
+
 const { Sequelize } = require("sequelize");
 class RestaurantService {
   static async getAllRestaurants() {

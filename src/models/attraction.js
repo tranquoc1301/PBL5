@@ -1,30 +1,30 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const Attraction = sequelize.define(
-    'Attraction',
+    "Attraction",
     {
       attraction_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING(100),
-        allowNull: false
+        allowNull: false,
       },
       description: DataTypes.TEXT,
       latitude: {
         type: DataTypes.DECIMAL(10, 7),
-        allowNull: false
+        allowNull: false,
       },
       longitude: {
         type: DataTypes.DECIMAL(10, 7),
-        allowNull: false
+        allowNull: false,
       },
       city_id: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       address: DataTypes.STRING(255),
       average_rating: {
@@ -32,48 +32,48 @@ module.exports = (sequelize) => {
         defaultValue: 0,
         validate: {
           min: 0,
-          max: 5
-        }
+          max: 5,
+        },
       },
       image_url: DataTypes.JSONB,
       tags: DataTypes.JSONB,
       created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        defaultValue: DataTypes.NOW,
       },
       updated_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        defaultValue: DataTypes.NOW,
       },
       rating_total: {
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        defaultValue: 0,
       },
       visit_duration: {
         type: DataTypes.INTEGER,
-        defaultValue: 30
-      }
+        defaultValue: 30,
+      },
     },
     {
-      tableName: 'attractions',
-      timestamps: false
+      tableName: "attractions",
+      timestamps: false,
     }
   );
 
   Attraction.associate = function (models) {
-    Attraction.belongsTo(models.City, { foreignKey: 'city_id' });
-    Attraction.hasMany(models.Review, { foreignKey: 'attraction_id' });
+    Attraction.belongsTo(models.City, { foreignKey: "city_id" });
+    Attraction.hasMany(models.Review, { foreignKey: "attraction_id" });
     Attraction.belongsToMany(models.Activity, {
-      through: 'activities',
-      foreignKey: 'attraction_id'
+      through: "activities",
+      foreignKey: "attraction_id",
     });
     Attraction.belongsToMany(models.Article, {
-      through: 'article_attractions',
-      foreignKey: 'attraction_id'
+      through: "article_attractions",
+      foreignKey: "attraction_id",
     });
     Attraction.belongsToMany(models.Favorite, {
-      through: 'favorites',
-      foreignKey: 'attraction_id'
+      through: "favorites",
+      foreignKey: "attraction_id",
     });
   };
 
