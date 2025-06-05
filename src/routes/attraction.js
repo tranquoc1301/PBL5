@@ -35,7 +35,7 @@ router.get("/tags", AttractionController.getAttractionsByTags);
 
 // Get attraction by ID
 router.get("/:attractionId", AttractionController.getAttractionById);
-router.get("/gettoprating", attractionController.getTopRatingAttraction);
+router.get("/gettoprating", AttractionController.getTopRatingAttraction);
 // Upload images for attractions
 router.post(
   "/upload",

@@ -13,6 +13,7 @@ const tagRoutes = require("./tags.js");
 const recentlyViewedRoutes = require("./recentlyViewed.js");
 const favoriteRoutes = require("./favorite.js");
 const itinerary = require("./itinerary.js");
+const itineraryDetail = require("./itineraryDetail.js")
 const router = express.Router();
 
 router.use("/auth", authRoutes);
@@ -30,5 +31,6 @@ router.use("/api/tags", tagRoutes);
 router.use("/recently-viewed", recentlyViewedRoutes);
 router.use("/favorites", favoriteRoutes);
 router.use("/itinerary", itinerary);
+router.use("/itineraryDetail", itineraryDetail);
 // router.use("/restaurant", restaurantRoutes);
 module.exports = router;
