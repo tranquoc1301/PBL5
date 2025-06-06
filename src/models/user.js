@@ -80,13 +80,6 @@ module.exports = (sequelize) => {
   User.associate = function (models) {
     // Quan hệ 1-n: Một User có nhiều Itinerary
     User.hasMany(models.Itinerary, { foreignKey: "user_id" });
-    // Quan hệ 1-n: Một User có nhiều Post
-    User.hasMany(models.Post, { foreignKey: "user_id" });
-    // Quan hệ n-n: User liên kết với Itinerary qua bảng ItineraryShare
-    User.belongsToMany(models.Itinerary, {
-      through: models.ItineraryShare,
-      foreignKey: "user_id",
-    });
   };
 
   return User;
