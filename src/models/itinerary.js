@@ -69,10 +69,6 @@ module.exports = (sequelize) => {
   Itinerary.associate = function (models) {
     Itinerary.belongsTo(models.User, { foreignKey: "user_id" });
     Itinerary.hasMany(models.ItineraryDay, { foreignKey: "itinerary_id" });
-    Itinerary.belongsToMany(models.User, {
-      through: models.ItineraryShare,
-      foreignKey: "itinerary_id",
-    });
   };
 
   return Itinerary;

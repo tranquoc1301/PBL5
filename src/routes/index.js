@@ -13,7 +13,8 @@ const tagRoutes = require("./tags.js");
 const recentlyViewedRoutes = require("./recentlyViewed.js");
 const favoriteRoutes = require("./favorite.js");
 const itinerary = require("./itinerary.js");
-const itineraryDetail = require("./itineraryDetail.js")
+const itineraryDetail = require("./itineraryDetail.js");
+
 const router = express.Router();
 
 router.use("/auth", authRoutes);
