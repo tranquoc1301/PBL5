@@ -193,6 +193,26 @@ function planSchedule(
 
     currentTime = departure;
   }
+
+  for (let i = 0; i < schedule.length; i++) {
+    const curr = schedule[i];
+    const prev = i === 0 ? null : schedule[i - 1];
+
+    if (prev) {
+        const travel = curr.travel_from_prev_minutes;
+        const prevDeparture = timeToMinutes(prev.departure_time);
+        const currArrival = timeToMinutes(curr.arrival_time);
+        if (prevDeparture + travel > currArrival + 1) {
+            curr.warning = "You may not come to this destination on time!";
+        } else {
+            curr.warning = '';
+        }
+    } else {
+        curr.travel_from_prev_minutes = 0;
+        curr.warning = '';
+    }
+  }
+  
   return schedule;
 }
 
@@ -349,15 +369,17 @@ exports.getAttractionsByTags = async (req, res, next) => {
         message: "No attractions or restaurants found for the given filters",
       });
     }
-    const diffTime = endDate - startDate;
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = end - start;
     const maxDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    console.log(maxDays);
     const schedule = planMultiDaySchedule(
       attractions,
       restaurants,
       startTime || "08:00",
       endTime || "20:00",
-      3
+      maxDays
     );
     res.status(200).json(schedule);
   } catch (error) {
