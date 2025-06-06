@@ -14,9 +14,6 @@ router.get(
 // Search attractions by name
 router.get("/search", AttractionController.searchAttractions);
 
-// Get all attractions
-router.get("/", AttractionController.getAllAttractions);
-
 // Get special attractions by city ID
 router.get(
   "/special/:city_id",

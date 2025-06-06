@@ -20,7 +20,7 @@ class AuthService {
     return this.generateTokenResponse(user);
   }
 
-  static async register(fullName, username, email, password, role) {
+  static async register(fullName, username, email, password, role, bio) {
     role = role === "admin" ? "admin" : "user";
     const defaultAvatar =
       "https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg";
@@ -33,11 +33,18 @@ class AuthService {
         password: hashedPassword,
         role,
         avatar_url: defaultAvatar,
+        bio: bio || {
+          currentCity: "",
+          about: "",
+          website: "",
+          location_preferences: [],
+        }, // Include bio, default to model’s defaultValue if not provided
       });
       return { message: "User registered successfully", userId: user.user_id };
     } catch (error) {
+      console.error("Registration Error:", error); // Log error for debugging
       if (error.name === "SequelizeUniqueConstraintError") {
-        throw new Error("Email already exists");
+        throw new Error("Email or username already exists");
       }
       throw error;
     }
@@ -55,7 +62,7 @@ class AuthService {
       user: {
         user_id: user.user_id,
         username: user.username,
-        fullName: user.full_name,
+        fullName: user.full_name, // Return fullName for frontend consistency
         role: user.role,
         email: user.email,
         avatar: user.avatar_url,
@@ -70,7 +77,7 @@ class AuthService {
     if (!user) throw new Error("Email không tồn tại");
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 3600000); // Hết hạn sau 1 giờ
+    const expires = new Date(Date.now() + 3600000);
 
     user.password_reset_token = token;
     user.password_reset_expires = expires;

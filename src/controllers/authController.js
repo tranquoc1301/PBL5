@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { fullName, username, email, password, role } = req.body;
+    const { fullName, username, email, password, role, bio } = req.body;
     if (!fullName || !username || !email || !password) {
       return res.status(400).json({
         error: "Full name, username, email, and password are required.",
@@ -32,7 +32,8 @@ exports.register = async (req, res) => {
       username,
       email,
       password,
-      role
+      role,
+      bio // Pass bio to AuthService
     );
     return res.status(201).json(result);
   } catch (error) {
@@ -66,7 +67,7 @@ exports.googleAuthCallback = (req, res, next) => {
       user_id: user.user_id,
       username: user.username,
       email: user.email,
-      fullName: user.full_name || "",
+      fullName: user.full_name,
       role: user.role,
       avatar: user.avatar_url || null,
       joinedAt: user.created_at || new Date().toISOString(),

@@ -25,8 +25,6 @@ class CityService {
       if (sanitizedName.length > 100) {
         throw new Error("Search query cannot exceed 100 characters");
       }
-
-      // Search with case-insensitive partial match, unaccent, and trigram similarity
       const cities = await City.findAll({
         where: {
           [Op.or]: [
@@ -56,7 +54,6 @@ class CityService {
         limit: 100,
       });
 
-      console.log(`Search query: "${sanitizedName}", Results:`, cities.length); // Debug log
       return cities || [];
     } catch (error) {
       console.error("Error searching cities:", error);

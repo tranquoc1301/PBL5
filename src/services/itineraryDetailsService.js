@@ -1,8 +1,7 @@
-const { ItineraryDetail } = require('../models');
+const { ItineraryDetail } = require("../models");
 const { Op, literal } = require("sequelize");
 
 const { Sequelize } = require("sequelize");
-
 
 exports.getDetailsByUserAndItinerary = async (userId, itineraryId) => {
   return await ItineraryDetail.findAll({
@@ -12,7 +11,6 @@ exports.getDetailsByUserAndItinerary = async (userId, itineraryId) => {
     },
   });
 };
-
 
 exports.createItineraryDetail = async (data) => {
   try {
