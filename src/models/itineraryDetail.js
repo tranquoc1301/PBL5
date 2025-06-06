@@ -71,10 +71,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       tags: DataTypes.JSONB,
-      image_url: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true,
-      },
+      image_url: DataTypes.JSONB, 
       latitude: {
         type: DataTypes.FLOAT,
         allowNull: true,
@@ -91,6 +88,7 @@ module.exports = (sequelize) => {
     {
       tableName: "itinerary_details",
       timestamps: false,
+      id: false,
     }
   );
 

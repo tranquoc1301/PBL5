@@ -1,3 +1,4 @@
+const itinerary = require('../models/itinerary');
 const ItineraryService = require('../services/itineraryService');
 
 exports.createItinerary = async (req, res, next) => {
@@ -8,6 +9,16 @@ exports.createItinerary = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getItineraryByID = async (req, res, next) => {
+  try {
+    const { itinerary_id } = req.params;
+    const newItinerary = await ItineraryService.getItinerarybyId(itinerary_id);
+    res.status(200).json(newItinerary);
+  } catch (err) {
+    next(err);
+  }
+}
 
 exports.getFinishedItinerarybyUser = async (req, res, next) => {
   try {

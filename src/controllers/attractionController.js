@@ -56,12 +56,12 @@ function planMultiDaySchedule(
 
     const dailySchedule = planSchedule(remainingAttractions, remainingRestaurants, startTime, endTime, day);
 
-    
+
     dailySchedule.forEach(item => item.day = day);
 
     fullSchedule.push(...dailySchedule);
 
-    
+
     for (const item of dailySchedule) {
       if (item.type === "attraction") {
         const index = remainingAttractions.findIndex(a => a.attraction_id === item.id);
@@ -84,7 +84,7 @@ function planSchedule(
   endTime = "20:00",
   day,
 ) {
-  
+
 
   const DayStart = timeToMinutes(startTime); // 540
   const LunchStart = timeToMinutes("11:00"); // 660
@@ -229,7 +229,7 @@ exports.getAttractionByCity = async (req, res, next) => {
   }
 }
 
-exports.getTopRatingAttraction = async(req, res, next) => {
+exports.getTopRatingAttraction = async (req, res, next) => {
   try {
     const attractions = await AttractionService.getTopRatingAttraction();
     res.status(200).json(attractions);
@@ -287,7 +287,7 @@ exports.getAttractionsByTags = async (req, res, next) => {
     const { city } = req.query;
     let { tags } = req.query;
     const { startTime, endTime } = req.query;
-    const { startDate, endDate} = req.query;
+    const { startDate, endDate } = req.query;
     let { res_tag } = req.query;
     console.log(res_tag);
     if (!tags) {
@@ -349,13 +349,15 @@ exports.getAttractionsByTags = async (req, res, next) => {
         message: "No attractions or restaurants found for the given filters",
       });
     }
-    console.log("startDate: ", startDate);
+    const diffTime = endDate - startDate;
+    const maxDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    console.log(maxDays);
     const schedule = planMultiDaySchedule(
       attractions,
       restaurants,
       startTime || "08:00",
       endTime || "20:00",
-
+      3
     );
     res.status(200).json(schedule);
   } catch (error) {
@@ -532,38 +534,38 @@ exports.searchAttractions = async (req, res, next) => {
 
 
 // let currentTime = timeToMinutes(startTime);
-  // const endTimeMinutes = timeToMinutes(endTime);
-  // const schedule = [];
+// const endTimeMinutes = timeToMinutes(endTime);
+// const schedule = [];
 
-  // for (let i = 0; i < attractions.length; i++) {
-  //   const current = attractions[i];
-  //   const prev = i === 0 ? null : attractions[i - 1];
+// for (let i = 0; i < attractions.length; i++) {
+//   const current = attractions[i];
+//   const prev = i === 0 ? null : attractions[i - 1];
 
-  //   let travelMinutes = 0;
-  //   if (prev) {
-  //     const distance = haversineDistance(
-  //       parseFloat(prev.latitude), parseFloat(prev.longitude),
-  //       parseFloat(current.latitude), parseFloat(current.longitude)
-  //     );
-  //     const speed = 30; // tốc độ trung bình, cái này sau này tính tiếp
-  //     travelMinutes = (distance / speed) * 60;
-  //   }
+//   let travelMinutes = 0;
+//   if (prev) {
+//     const distance = haversineDistance(
+//       parseFloat(prev.latitude), parseFloat(prev.longitude),
+//       parseFloat(current.latitude), parseFloat(current.longitude)
+//     );
+//     const speed = 30; // tốc độ trung bình, cái này sau này tính tiếp
+//     travelMinutes = (distance / speed) * 60;
+//   }
 
-  //   const visitMinutes = current.visit_duration || 60;
-  //   const arrivalTime = currentTime + travelMinutes;
+//   const visitMinutes = current.visit_duration || 60;
+//   const arrivalTime = currentTime + travelMinutes;
 
-  //   if (arrivalTime + visitMinutes > endTimeMinutes) {
-  //     break;
-  //   }
+//   if (arrivalTime + visitMinutes > endTimeMinutes) {
+//     break;
+//   }
 
-  //   schedule.push({
-  //     name: current.name,
-  //     arrival_time: minutesToTime(arrivalTime),
-  //     visit_duration: visitMinutes,
-  //     departure_time: minutesToTime(arrivalTime + visitMinutes),
-  //     travel_from_prev_minutes: Math.round(travelMinutes)
-  //   });
+//   schedule.push({
+//     name: current.name,
+//     arrival_time: minutesToTime(arrivalTime),
+//     visit_duration: visitMinutes,
+//     departure_time: minutesToTime(arrivalTime + visitMinutes),
+//     travel_from_prev_minutes: Math.round(travelMinutes)
+//   });
 
-  //   currentTime = arrivalTime + visitMinutes;
-  // }
-  // return schedule;
+//   currentTime = arrivalTime + visitMinutes;
+// }
+// return schedule;

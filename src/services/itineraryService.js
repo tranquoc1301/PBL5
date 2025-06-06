@@ -2,6 +2,7 @@ const { Itinerary } = require('../models');
 const { Op, literal } = require("sequelize");
 
 const { Sequelize } = require("sequelize");
+const itinerary = require('../models/itinerary');
 // const ItineraryService = {
 //   createItinerary: async (data) => {
 //     try {
@@ -31,27 +32,30 @@ exports.createItinerary = async (data) => {
 }
 
 exports.getFinishedItinerarybyUser = async (user_id) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   return await Itinerary.findAll({
     where: {
       user_id: user_id,
-       end_date: {
-        [Op.lt]: today,
+      end_date: {
+        [Op.lt]: literal("CURRENT_DATE"),
       },
     },
   });
 }
 
+exports.getItinerarybyId = async(id) => {
+  return await Itinerary.findAll({
+    where: {
+      itinerary_id: id,
+    }
+  });
+}
 
 exports.getNotFinishedItinerarybyUser = async (user_id) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   return await Itinerary.findAll({
     where: {
       user_id: user_id,
-       end_date: {
-        [Op.gte]: today,
+      end_date: {
+        [Op.gte]: literal("CURRENT_DATE"),
       },
     },
   });

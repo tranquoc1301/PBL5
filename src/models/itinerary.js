@@ -18,6 +18,15 @@ module.exports = (sequelize) => {
         },
         onDelete: "CASCADE",
       },
+      city_name: {
+        type: DataTypes.TEXT,
+      },
+      city_id: {
+        type: DataTypes.INTEGER,
+      },
+      image_url: {
+        type: DataTypes.TEXT,
+      },
       title: {
         type: DataTypes.STRING(100),
         allowNull: false,

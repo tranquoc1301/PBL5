@@ -23,3 +23,9 @@ exports.createItineraryDetail = async (data) => {
     throw error;
   }
 }
+
+exports.deleteByItineraryId = async (itinerary_id) => {
+  return await ItineraryDetail.destroy({
+    where: { itinerary_id },
+  });
+};
