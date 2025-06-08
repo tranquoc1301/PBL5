@@ -39,35 +39,43 @@ function estimateTravelTime(from, to) {
   return (distance / speed) * 60;
 }
 
-
 function planMultiDaySchedule(
   attractions,
   restaurants,
   startTime = "08:00",
   endTime = "20:00",
-  maxDays = 5,
+  maxDays = 5
 ) {
   const remainingAttractions = [...attractions];
   const remainingRestaurants = [...restaurants];
   const fullSchedule = [];
 
   for (let day = 1; day <= maxDays; day++) {
-    if (remainingAttractions.length === 0 && remainingRestaurants.length === 0) break;
+    if (remainingAttractions.length === 0 && remainingRestaurants.length === 0)
+      break;
 
-    const dailySchedule = planSchedule(remainingAttractions, remainingRestaurants, startTime, endTime, day);
+    const dailySchedule = planSchedule(
+      remainingAttractions,
+      remainingRestaurants,
+      startTime,
+      endTime,
+      day
+    );
 
-
-    dailySchedule.forEach(item => item.day = day);
+    dailySchedule.forEach((item) => (item.day = day));
 
     fullSchedule.push(...dailySchedule);
 
-
     for (const item of dailySchedule) {
       if (item.type === "attraction") {
-        const index = remainingAttractions.findIndex(a => a.attraction_id === item.id);
+        const index = remainingAttractions.findIndex(
+          (a) => a.attraction_id === item.id
+        );
         if (index !== -1) remainingAttractions.splice(index, 1);
       } else if (item.type === "restaurant") {
-        const index = remainingRestaurants.findIndex(r => r.restaurant_id === item.id);
+        const index = remainingRestaurants.findIndex(
+          (r) => r.restaurant_id === item.id
+        );
         if (index !== -1) remainingRestaurants.splice(index, 1);
       }
     }
@@ -76,16 +84,13 @@ function planMultiDaySchedule(
   return fullSchedule;
 }
 
-
 function planSchedule(
   attractions,
   restaurants,
   startTime = "08:00",
   endTime = "20:00",
-  day,
+  day
 ) {
-
-
   const DayStart = timeToMinutes(startTime); // 540
   const LunchStart = timeToMinutes("11:00"); // 660
   const LunchEnd = timeToMinutes("13:00"); // 780
@@ -122,7 +127,7 @@ function planSchedule(
       image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
-      warning: ''
+      warning: "",
     });
 
     currentTime = departure;
@@ -150,7 +155,7 @@ function planSchedule(
       tags: restaurant.tags,
       latitude: restaurant.latitude,
       longitude: restaurant.longitude,
-      warning: ''
+      warning: "",
     });
     console.log("c");
   }
@@ -188,7 +193,7 @@ function planSchedule(
       image_url: curr.image_url,
       latitude: curr.latitude,
       longitude: curr.longitude,
-      warning: ''
+      warning: "",
     });
 
     currentTime = departure;
@@ -199,20 +204,20 @@ function planSchedule(
     const prev = i === 0 ? null : schedule[i - 1];
 
     if (prev) {
-        const travel = curr.travel_from_prev_minutes;
-        const prevDeparture = timeToMinutes(prev.departure_time);
-        const currArrival = timeToMinutes(curr.arrival_time);
-        if (prevDeparture + travel > currArrival + 1) {
-            curr.warning = "You may not come to this destination on time!";
-        } else {
-            curr.warning = '';
-        }
+      const travel = curr.travel_from_prev_minutes;
+      const prevDeparture = timeToMinutes(prev.departure_time);
+      const currArrival = timeToMinutes(curr.arrival_time);
+      if (prevDeparture + travel > currArrival + 1) {
+        curr.warning = "You may not come to this destination on time!";
+      } else {
+        curr.warning = "";
+      }
     } else {
-        curr.travel_from_prev_minutes = 0;
-        curr.warning = '';
+      curr.travel_from_prev_minutes = 0;
+      curr.warning = "";
     }
   }
-  
+
   return schedule;
 }
 
@@ -247,7 +252,7 @@ exports.getAttractionByCity = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 exports.getTopRatingAttraction = async (req, res, next) => {
   try {
@@ -256,7 +261,7 @@ exports.getTopRatingAttraction = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 // Lấy địa điểm theo ID
 exports.getAttractionById = async (req, res, next) => {
   try {
@@ -369,7 +374,7 @@ exports.getAttractionsByTags = async (req, res, next) => {
         message: "No attractions or restaurants found for the given filters",
       });
     }
-    
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = end - start;
@@ -538,22 +543,29 @@ exports.deleteAttraction = async (req, res, next) => {
   }
 };
 
-exports.searchAttractions = async (req, res, next) => {
+exports.searchAttractions = async (req, res) => {
   try {
-    const query = req.query.q;
-    if (!query) {
-      return res
-        .status(400)
-        .json({ message: "Query parameter 'q' is required" });
+    const { q } = req.query;
+
+    if (!q || typeof q !== "string" || q.trim().length === 0) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          'Query parameter "q" is required and must be a non-empty string',
+      });
     }
 
-    const attractions = await AttractionService.searchAttractions(query);
-    res.status(200).json(attractions);
+    const attractions = await AttractionService.searchAttractions(q);
+
+    return res.status(200).json(attractions);
   } catch (error) {
-    next(error);
+    console.error("Error in searchAttractions:", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message || "An error occurred while searching attractions",
+    });
   }
 };
-
 
 // let currentTime = timeToMinutes(startTime);
 // const endTimeMinutes = timeToMinutes(endTime);

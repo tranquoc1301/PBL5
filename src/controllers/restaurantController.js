@@ -186,7 +186,30 @@ class RestaurantController {
       res.status(400).json({ message: error.message });
     }
   }
+  static async searchRestaurants(req, res) {
+    try {
+      const { q } = req.query;
 
+      if (!q || typeof q !== "string" || q.trim().length === 0) {
+        return res.status(400).json({
+          status: "error",
+          message:
+            'Query parameter "q" is required and must be a non-empty string',
+        });
+      }
+
+      const restaurants = await RestaurantService.searchRestaurants(q);
+
+      return res.status(200).json(restaurants);
+    } catch (error) {
+      console.error("Error in searchRestaurants:", error);
+      return res.status(500).json({
+        status: "error",
+        message:
+          error.message || "An error occurred while searching restaurants",
+      });
+    }
+  }
   // Delete a restaurant
   static async deleteRestaurant(req, res) {
     try {

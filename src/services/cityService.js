@@ -1,6 +1,7 @@
 const { City } = require("../models");
 const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
+const removeAccents = require("remove-accents");
 
 class CityService {
   static async getAllCities() {
@@ -21,36 +22,34 @@ class CityService {
         return [];
       }
 
-      const sanitizedName = name.trim();
+      const sanitizedName = removeAccents(name.trim());
       if (sanitizedName.length > 100) {
         throw new Error("Search query cannot exceed 100 characters");
       }
+
       const cities = await City.findAll({
         where: {
           [Op.or]: [
-            // Case-insensitive partial match
             { name: { [Op.iLike]: `%${sanitizedName}%` } },
-            // Unaccented match for Unicode (e.g., "Hà" matches "Ha")
             Sequelize.where(Sequelize.fn("unaccent", Sequelize.col("name")), {
               [Op.iLike]: `%${sanitizedName}%`,
             }),
           ],
         },
-        // Add trigram similarity for fuzzy matching
         attributes: {
           include: [
             [
-              Sequelize.literal(`SIMILARITY(name, '${sanitizedName}')`),
+              Sequelize.literal(
+                `SIMILARITY(unaccent(name), '${sanitizedName}')`
+              ),
               "similarity",
             ],
           ],
         },
-        // Order by similarity (fuzzy) and exactness
         order: [
           [Sequelize.literal("similarity"), "DESC"],
           [Sequelize.col("name"), "ASC"],
         ],
-        // Limit to prevent overload
         limit: 100,
       });
 
