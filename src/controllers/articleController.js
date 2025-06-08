@@ -1,96 +1,55 @@
-const { Sequelize } = require("sequelize");
-const sequelize = new Sequelize(
-  `postgres://postgres:${process.env.DB_PASSWORD}@localhost:5432/${process.env.DB_NAME}`,
-  {
-    dialect: "postgres",
-    logging: false,
-  }
-);
-const ArticleModel = require("../models/article");
-const Article = ArticleModel(sequelize);
+const articleService = require("../services/articleService");
 
-// Lấy tất cả bài viết
-exports.getAllArticles = async (req, res) => {
+const create = async (req, res) => {
   try {
-    const articles = await Article.findAll();
+    const article = await articleService.createArticle(req.body);
+    res.status(201).json(article);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getAll = async (req, res) => {
+  try {
+    const articles = await articleService.getAllArticles();
     res.json(articles);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Lấy bài viết theo ID
-exports.getArticleById = async (req, res) => {
+const getById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const article = await Article.findByPk(id);
-
-    if (!article) {
-      return res.status(404).json({ error: "Article not found" });
-    }
-
+    const article = await articleService.getArticleById(req.params.id);
+    if (!article) return res.status(404).json({ error: "Article not found" });
     res.json(article);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Tạo bài viết mới
-exports.createArticle = async (req, res) => {
+const update = async (req, res) => {
   try {
-    const { user_id, title, content, images, status } = req.body;
-
-    if (!user_id || !title || !content) {
-      return res
-        .status(400)
-        .json({ error: "user_id, title và content là bắt buộc" });
-    }
-
-    const newArticle = await Article.create({
-      user_id,
-      title,
-      content,
-      images,
-      status,
-    });
-
-    res.status(201).json(newArticle);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Cập nhật bài viết
-exports.updateArticle = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, content, images, status } = req.body;
-
-    const article = await Article.findByPk(id);
-    if (!article) {
-      return res.status(404).json({ error: "Article not found" });
-    }
-
-    await article.update({ title, content, images, status });
+    const article = await articleService.updateArticle(req.params.id, req.body);
     res.json(article);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Xóa bài viết
-exports.deleteArticle = async (req, res) => {
+const remove = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const article = await Article.findByPk(id);
-    if (!article) {
-      return res.status(404).json({ error: "Article not found" });
-    }
-
-    await article.destroy();
+    await articleService.deleteArticle(req.params.id);
     res.json({ message: "Article deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+};
+
+module.exports = {
+  create,
+  getAll,
+  getById,
+  update,
+  remove,
 };

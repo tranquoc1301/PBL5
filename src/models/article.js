@@ -17,30 +17,46 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
+      cover_image: {
+        type: DataTypes.STRING,
+        allowNull: false, // Ảnh bìa lớn, không cho phép NULL
+      },
       content: {
         type: DataTypes.TEXT,
         allowNull: false,
+        /**
+         * Ví dụ:
+         * [
+         *   {
+         *     "text": "Đây là đoạn đầu tiên",
+         *     "images": ["img1.jpg", "img2.jpg"]
+         *   },
+         *   {
+         *     "text": "Đây là đoạn thứ hai",
+         *     "images": []
+         *   }
+         * ]
+         */
       },
       status: {
         type: DataTypes.STRING(20),
-        defaultValue: "published",
+        defaultValue: "draft", // Cập nhật giá trị mặc định khớp với CSDL
         validate: {
           isIn: [["draft", "published", "archived"]],
         },
       },
-      images: DataTypes.JSONB,
       created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        // Bỏ defaultValue để CSDL tự động gán CURRENT_TIMESTAMP
       },
       updated_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        // Bỏ defaultValue để CSDL tự động gán CURRENT_TIMESTAMP
       },
     },
     {
       tableName: "articles",
-      timestamps: false,
+      timestamps: false, // Vì CSDL đã có created_at và updated_at
     }
   );
 

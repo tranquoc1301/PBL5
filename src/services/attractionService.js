@@ -1,6 +1,6 @@
 const { Attraction } = require("../models");
-const { Op, where } = require("sequelize");
-const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
+const Sequelize = require("sequelize");
 
 class AttractionService {
   static async getAllAttractions() {
@@ -57,9 +57,9 @@ class AttractionService {
 
   static async getAttractionByCity(cityId) {
     const attractions = await Attraction.findAll({
-      where : {
-        city_id : cityId
-      }
+      where: {
+        city_id: cityId,
+      },
     });
     if (!attractions || attractions.length === 0) {
       throw new Error("Không tìm thấy địa điểm nổi bật nào cho thành phố này");
@@ -76,7 +76,7 @@ class AttractionService {
           [Op.like]: `%${name}%`,
         },
       },
-      limit: 1
+      limit: 1,
     });
     return attraction;
   }
@@ -151,10 +151,9 @@ class AttractionService {
       const attractions = await Attraction.findAll({
         where: {
           city_id: city,
-          // Sử dụng toán tử '&&' trong PostgreSQL để kiểm tra overlap giữa tags
           [Op.or]: tags.map((tag) => ({
             tags: {
-              [Op.contains]: [tag], // JSONB contains 1 phần tử
+              [Op.contains]: [tag],
             },
           })),
         },
@@ -169,13 +168,50 @@ class AttractionService {
   }
 
   static async searchAttractions(query) {
-    return await Attraction.findAll({
-      where: {
-        name: {
-          [Op.iLike]: `%${query}%`,
+    try {
+      if (!query || typeof query !== "string" || query.trim().length === 0) {
+        return [];
+      }
+
+      const sanitizedQuery = query.trim();
+      if (sanitizedQuery.length > 100) {
+        throw new Error("Search query cannot exceed 100 characters");
+      }
+
+      const attractions = await Attraction.findAll({
+        where: {
+          [Op.or]: [
+            // Case-insensitive partial match
+            { name: { [Op.iLike]: `%${sanitizedQuery}%` } },
+            // Unaccented match for Unicode (e.g., "Hà" matches "Ha")
+            Sequelize.where(Sequelize.fn("unaccent", Sequelize.col("name")), {
+              [Op.iLike]: `%${sanitizedQuery}%`,
+            }),
+          ],
         },
-      },
-    });
+        // Add trigram similarity for fuzzy matching
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(`SIMILARITY(name, '${sanitizedQuery}')`),
+              "similarity",
+            ],
+          ],
+        },
+        // Order by similarity (fuzzy) and exactness
+        order: [
+          [Sequelize.literal("similarity"), "DESC"],
+          [Sequelize.col("name"), "ASC"],
+        ],
+        // Limit to prevent overload
+        limit: 100,
+      });
+
+      return attractions || [];
+    } catch (error) {
+      console.error("Error searching attractions:", error);
+      throw new Error("Error searching attractions: " + error.message);
+    }
   }
 }
 

@@ -132,7 +132,6 @@ module.exports = (sequelize) => {
       },
     }
   );
-
   Restaurant.associate = function (models) {
     Restaurant.belongsTo(models.City, {
       foreignKey: "city_id",
