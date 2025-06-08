@@ -139,14 +139,6 @@ module.exports = (sequelize) => {
       onUpdate: "CASCADE",
     });
     Restaurant.hasMany(models.Review, { foreignKey: "restaurant_id" });
-    Restaurant.belongsToMany(models.Activity, {
-      through: "activities",
-      foreignKey: "restaurant_id",
-    });
-    Restaurant.belongsToMany(models.Article, {
-      through: "article_restaurants",
-      foreignKey: "restaurant_id",
-    });
     Restaurant.belongsToMany(models.Favorite, {
       through: "favorites",
       foreignKey: "restaurant_id",
