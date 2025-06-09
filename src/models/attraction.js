@@ -63,14 +63,7 @@ module.exports = (sequelize) => {
   Attraction.associate = function (models) {
     Attraction.belongsTo(models.City, { foreignKey: "city_id" });
     Attraction.hasMany(models.Review, { foreignKey: "attraction_id" });
-    Attraction.belongsToMany(models.Activity, {
-      through: "activities",
-      foreignKey: "attraction_id",
-    });
-    Attraction.belongsToMany(models.Article, {
-      through: "article_attractions",
-      foreignKey: "attraction_id",
-    });
+
     Attraction.belongsToMany(models.Favorite, {
       through: "favorites",
       foreignKey: "attraction_id",

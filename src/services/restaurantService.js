@@ -187,7 +187,51 @@ class RestaurantService {
   //     throw new Error('Error fetching restaurants by tags');
   //   }
   // }
+  static async searchRestaurants(query) {
+    try {
+      if (!query || typeof query !== "string" || query.trim().length === 0) {
+        return [];
+      }
 
+      const sanitizedQuery = query.trim();
+      if (sanitizedQuery.length > 100) {
+        throw new Error("Search query cannot exceed 100 characters");
+      }
+
+      const restaurants = await Restaurant.findAll({
+        where: {
+          [Op.or]: [
+            // Case-insensitive partial match
+            { name: { [Op.iLike]: `%${sanitizedQuery}%` } },
+            // Unaccented match for Unicode (e.g., "Hà" matches "Ha")
+            Sequelize.where(Sequelize.fn("unaccent", Sequelize.col("name")), {
+              [Op.iLike]: `%${sanitizedQuery}%`,
+            }),
+          ],
+        },
+        // Add trigram similarity for fuzzy matching
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(`SIMILARITY(name, '${sanitizedQuery}')`),
+              "similarity",
+            ],
+          ],
+        },
+        // Order by similarity and name
+        order: [
+          [Sequelize.literal("similarity"), "DESC"],
+          [Sequelize.col("name"), "ASC"],
+        ],
+        limit: 100,
+      });
+
+      return restaurants || [];
+    } catch (error) {
+      console.error("Error searching restaurants:", error);
+      throw new Error("Error searching restaurants: " + error.message);
+    }
+  }
   static async deleteRestaurant(id) {
     const restaurant = await Restaurant.findByPk(id);
     if (!restaurant) {

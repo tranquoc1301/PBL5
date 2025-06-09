@@ -7,6 +7,7 @@ const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", restaurantController.getAllRestaurants);
+router.get("/search", restaurantController.searchRestaurants); // Moved before /:id
 router.get("/:id", restaurantController.getRestaurantById);
 router.get(
   "/special/:city_id",
@@ -19,7 +20,7 @@ router.get(
 router.get("/rank/:restaurantId", restaurantController.getRestaurantRank);
 router.post(
   "/upload",
-  upload.array("images", 10), // Limit to 10 images
+  upload.array("images", 10),
   restaurantController.uploadImages
 );
 router.post("/", restaurantController.createRestaurant);
