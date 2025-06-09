@@ -6,7 +6,7 @@ const sequelize = new Sequelize(
     logging: false,
   }
 );
-const ActivityModel = require("../models/Activity");
+const ActivityModel = require("../models/activity");
 const Activity = ActivityModel(sequelize);
 
 exports.getAllActivities = async (req, res) => {

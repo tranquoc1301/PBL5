@@ -20,6 +20,22 @@ exports.getItineraryByID = async (req, res, next) => {
   }
 }
 
+exports.updateItinerary = async (req, res, next) => {
+  try {
+    const { itinerary_id } = req.params;
+    const updatedData = req.body;
+
+    const result = await ItineraryService.updateItinerary(itinerary_id, updatedData);
+
+    if (!result) {
+      return res.status(404).json({ message: "Itinerary not found or no changes made" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 exports.getFinishedItinerarybyUser = async (req, res, next) => {
   try {
     const {user_id} = req.params;

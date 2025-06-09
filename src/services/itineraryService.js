@@ -20,7 +20,15 @@ const itinerary = require('../models/itinerary');
 //     }
 //   }
 // };
+exports.updateItinerary = async (itinerary_id, data) => {
+  const [updatedCount] = await Itinerary.update(data, {
+    where: { itinerary_id }
+  });
 
+  if (updatedCount === 0) return null;
+
+  return await Itinerary.findByPk(itinerary_id);
+};
 exports.createItinerary = async (data) => {
   try {
     const itinerary = await Itinerary.create(data);

@@ -310,9 +310,9 @@ exports.getAttractionsByTags = async (req, res, next) => {
     const { startDate, endDate } = req.query;
     let { res_tag } = req.query;
     console.log(res_tag);
-    if (!tags) {
-      return res.status(400).json({ message: "City and tags are required" });
-    }
+    // if (!tags) {
+    //   return res.status(400).json({ message: "City and tags are required" });
+    // }
 
     // Nếu tags có nhiều hơn 1
     if (typeof tags === "string" && tags.trim().startsWith("[")) {
@@ -343,9 +343,9 @@ exports.getAttractionsByTags = async (req, res, next) => {
       res_tag = [res_tag];
     }
 
-    if (!Array.isArray(tags)) {
-      return res.status(400).json({ message: "Tags must be an array" });
-    }
+    // if (!Array.isArray(tags)) {
+    //   return res.status(400).json({ message: "Tags must be an array" });
+    // }
 
     if (!city) {
       return res.status(400).json({ message: "City is required" });
@@ -359,16 +359,16 @@ exports.getAttractionsByTags = async (req, res, next) => {
       res_tag
     );
 
-    if (
-      !attractions ||
-      attractions.length === 0 ||
-      !restaurants ||
-      restaurants.length === 0
-    ) {
-      return res.status(404).json({
-        message: "No attractions or restaurants found for the given filters",
-      });
-    }
+    // if (
+    //   !attractions ||
+    //   attractions.length === 0 ||
+    //   !restaurants ||
+    //   restaurants.length === 0
+    // ) {
+    //   return res.status(404).json({
+    //     message: "No attractions or restaurants found for the given filters",
+    //   });
+    // }
     
     const start = new Date(startDate);
     const end = new Date(endDate);
