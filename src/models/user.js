@@ -41,6 +41,10 @@ module.exports = (sequelize) => {
       avatar_url: {
         type: DataTypes.STRING(255),
       },
+      cover_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       role: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -58,10 +62,7 @@ module.exports = (sequelize) => {
           location_preferences: [],
         },
       },
-      refresh_token: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

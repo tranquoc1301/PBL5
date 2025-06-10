@@ -29,12 +29,15 @@ router.put("/:id", upload.single("avatar"), userController.updateUser);
 // Upload avatar
 router.post(
   "/upload-avatar",
-  auth,
-  isUser,
+
   upload.single("avatar"),
   userController.uploadAvatar
 );
-
+router.post(
+  "/upload-cover",
+  upload.single("cover"),
+  userController.uploadCover
+);
 // Delete user by ID (admin only)
 router.delete("/:id", auth, isAdmin, userController.deleteUser);
 

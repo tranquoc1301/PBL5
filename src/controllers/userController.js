@@ -80,18 +80,24 @@ class UserController {
         bio,
       };
 
-      if (req.file) {
-        const result = await cloudinaryInstance.uploader.upload(req.file.path, {
-          folder: "user_avatars",
-          resource_type: "image",
-        });
+      const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+
+      // Handle avatar_url
+      if (req.files?.avatar) {
+        const result = await cloudinaryInstance.uploader.upload(
+          req.files.avatar.path,
+          {
+            folder: "user_avatars",
+            resource_type: "image",
+          }
+        );
         userData.avatar_url = result.secure_url;
         await fs
-          .unlink(req.file.path)
-          .catch((err) => console.error("Failed to delete temp file:", err));
+          .unlink(req.files.avatar.path)
+          .catch((err) =>
+            console.error("Failed to delete temp avatar file:", err)
+          );
       } else if (req.body.avatar_url) {
-        // Validate avatar_url
-        const urlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
         if (!urlRegex.test(req.body.avatar_url)) {
           return res
             .status(400)
@@ -100,9 +106,48 @@ class UserController {
         userData.avatar_url = req.body.avatar_url;
       }
 
+      // Handle cover_url
+      if (req.files?.cover) {
+        const result = await cloudinaryInstance.uploader.upload(
+          req.files.cover.path,
+          {
+            folder: "user_covers",
+            resource_type: "image",
+          }
+        );
+        userData.cover_url = result.secure_url;
+        await fs
+          .unlink(req.files.cover.path)
+          .catch((err) =>
+            console.error("Failed to delete temp cover file:", err)
+          );
+      } else if (req.body.cover_url) {
+        if (!urlRegex.test(req.body.cover_url)) {
+          return res
+            .status(400)
+            .json({ message: "Invalid cover_url: Must be a valid URL" });
+        }
+        userData.cover_url = req.body.cover_url;
+      }
+
       const updatedUser = await UserService.updateUser(userId, userData);
       res.status(200).json(updatedUser);
     } catch (error) {
+      // Clean up any uploaded files in case of error
+      if (req.files?.avatar) {
+        await fs
+          .unlink(req.files.avatar.path)
+          .catch((err) =>
+            console.error("Failed to delete temp avatar file:", err)
+          );
+      }
+      if (req.files?.cover) {
+        await fs
+          .unlink(req.files.cover.path)
+          .catch((err) =>
+            console.error("Failed to delete temp cover file:", err)
+          );
+      }
       console.error("Update user error:", error.message);
       res
         .status(400)
@@ -131,9 +176,8 @@ class UserController {
       );
       res.status(200).json(users);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Internal Server error", error: error.message });
+      res.status(500);
+      inson({ message: "Internal Server error", error: error.message });
     }
   }
 
@@ -167,6 +211,28 @@ class UserController {
 
       await fs.unlink(req.file.path);
       res.status(200).json({ avatarUrl: result.secure_url });
+    } catch (error) {
+      if (req.file) await fs.unlink(req.file.path);
+      res.status(500).json({
+        message: "Failed to upload avatar",
+        error: error.message,
+      });
+    }
+  }
+
+  static async uploadCover(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const result = await cloudinaryInstance.uploader.upload(req.file.path, {
+        folder: "user_covers",
+        resource_type: "image",
+      });
+
+      await fs.unlink(req.file.path);
+      res.status(200).json({ coverUrl: result.secure_url });
     } catch (error) {
       if (req.file) await fs.unlink(req.file.path);
       res.status(500).json({

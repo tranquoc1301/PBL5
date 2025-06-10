@@ -1,8 +1,8 @@
-const { Itinerary } = require('../models');
+const { Itinerary } = require("../models");
 const { Op, literal } = require("sequelize");
 
 const { Sequelize } = require("sequelize");
-const itinerary = require('../models/itinerary');
+const itinerary = require("../models/itinerary");
 // const ItineraryService = {
 //   createItinerary: async (data) => {
 //     try {
@@ -20,9 +20,12 @@ const itinerary = require('../models/itinerary');
 //     }
 //   }
 // };
+exports.getAllItineraries = async () => {
+  return await Itinerary.findAll();
+};
 exports.updateItinerary = async (itinerary_id, data) => {
   const [updatedCount] = await Itinerary.update(data, {
-    where: { itinerary_id }
+    where: { itinerary_id },
   });
 
   if (updatedCount === 0) return null;
@@ -37,7 +40,7 @@ exports.createItinerary = async (data) => {
     console.error("Error creating itinerary:", error);
     throw error;
   }
-}
+};
 
 exports.getFinishedItinerarybyUser = async (user_id) => {
   return await Itinerary.findAll({
@@ -48,15 +51,15 @@ exports.getFinishedItinerarybyUser = async (user_id) => {
       },
     },
   });
-}
+};
 
-exports.getItinerarybyId = async(id) => {
+exports.getItinerarybyId = async (id) => {
   return await Itinerary.findAll({
     where: {
       itinerary_id: id,
-    }
+    },
   });
-}
+};
 
 exports.getNotFinishedItinerarybyUser = async (user_id) => {
   return await Itinerary.findAll({
@@ -67,5 +70,5 @@ exports.getNotFinishedItinerarybyUser = async (user_id) => {
       },
     },
   });
-}
+};
 // module.exports = ItineraryService;
