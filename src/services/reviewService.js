@@ -1,10 +1,12 @@
 const { cloudinaryInstance } = require("./../config/configureCloudinary");
 const ReviewModel = require("../models/review");
+const UserModel = require("../models/user");
 const { Op } = require("sequelize");
 
 class ReviewService {
   constructor(sequelize) {
     this.Review = ReviewModel(sequelize);
+    this.UserModel = UserModel(sequelize); // Initialize UserModel
   }
 
   // Upload ảnh lên Cloudinary và trả về mảng URL
@@ -212,7 +214,14 @@ class ReviewService {
         throw new Error("Review not found");
       }
 
-      if (review.user_id !== user_id) {
+      // Check if user is the review owner or an admin
+      const user = await this.UserModel.findOne({
+        where: { user_id: user_id },
+      });
+      if (!user) {
+        throw new Error("User not found");
+      }
+      if (review.user_id !== user_id && user.role !== "admin") {
         throw new Error("Unauthorized to delete this review");
       }
 
